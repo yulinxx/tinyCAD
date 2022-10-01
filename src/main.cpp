@@ -3,12 +3,15 @@
 
 #include <iostream>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
+// 回调函数
+void keyFun(GLFWwindow *pWnd, int nKey, int nScanCode, int nAction, int nMode);
+void mouseFunc(GLFWwindow *pWnd, int, int, int);
+void cursorFunc(GLFWwindow *window, double x, double y);
+void scrollFunc(GLFWwindow *window, double x, double y);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1200;
+const unsigned int SCR_HEIGHT = 800;
 
 const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
@@ -45,8 +48,12 @@ int main()
         glfwTerminate();
         return -1;
     }
+
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetKeyCallback(window, keyFun);
+    glfwSetCursorPosCallback(window, cursorFunc);
+    glfwSetMouseButtonCallback(window, mouseFunc);
+    glfwSetScrollCallback(window, scrollFunc);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -170,7 +177,7 @@ int main()
     {
         // input
         // -----
-        processInput(window);
+        // processInput(window);
 
         // render
         // ------
@@ -206,19 +213,222 @@ int main()
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+
+
+
+void keyFun(GLFWwindow *pWnd, int nKey, int nScanCode, int nAction, int nMode)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    if (nAction == GLFW_PRESS)
+    {
+        std::cout<<"Key:"<<nKey<<std::endl;
+    //     if (nKey == GLFW_KEY_W)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             direction *= 0.1;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             direction *= 0.001;
+    //         else
+    //             direction *= 0.01;
+    //         cameraPos += direction;
+    //     }
+    //     else if (nKey == GLFW_KEY_S)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             direction *= 0.1;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             direction *= 0.001;
+    //         else
+    //             direction *= 0.01;
+    //         cameraPos -= direction;
+    //     }
+    //     else if (nKey == GLFW_KEY_A)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         glm::vec3 vertical = glm::normalize(glm::cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             vertical *= 0.1;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             vertical *= 0.001;
+    //         else
+    //             vertical *= 0.01;
+    //         cameraPos -= vertical;
+    //         cameraTarg -= vertical;
+    //     }
+    //     else if (nKey == GLFW_KEY_D)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         glm::vec3 vertical = glm::normalize(glm::cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             vertical *= 0.1;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             vertical *= 0.001;
+    //         else
+    //             vertical *= 0.01;
+    //         cameraPos += vertical;
+    //         cameraTarg += vertical;
+    //     }
+    //     else if (nKey == GLFW_KEY_H)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         glm::vec3 vertical = glm::normalize(glm::cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             vertical *= 10;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             vertical *= 1;
+    //         else
+    //             vertical *= 0.01;
+    //         cameraPos -= vertical;
+    //         cameraTarg -= vertical;
+    //     }
+    //     else if (nKey == GLFW_KEY_J)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         glm::vec3 vertical = glm::normalize(glm::cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             vertical *= 10;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             vertical *= 1;
+    //         else
+    //             vertical *= 0.01;
+    //         cameraPos += vertical;
+    //         cameraTarg += vertical;
+    //     }
+    //     else if (nKey == GLFW_KEY_Q)
+    //     {
+    //         GLfloat radius = glm::distance(cameraPos, cameraTarg);
+    //         fRotateAngle += 0.00001f;
+
+    //         GLfloat camX = sin(fRotateAngle) * radius + cameraTarg.x;
+    //         GLfloat camZ = cos(fRotateAngle) * radius + cameraTarg.z;
+
+    //         cameraPos = glm::vec3(camX, 0.0, camZ);
+    //     }
+    //     else if (nKey == GLFW_KEY_E)
+    //     {
+    //         GLfloat radius = glm::distance(cameraPos, cameraTarg);
+    //         fRotateAngle -= 0.00001f;
+
+    //         GLfloat camX = sin(fRotateAngle) * radius + cameraTarg.x;
+    //         GLfloat camZ = cos(fRotateAngle) * radius + cameraTarg.z;
+
+    //         cameraPos = glm::vec3(camX, 0.0, camZ);
+    //     }
+    //     else if (nKey == GLFW_KEY_Z)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         glm::vec3 vertical = glm::normalize(glm::cross(direction, glm::vec3(1.0f, 0.0f, 0.0f)));
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             vertical *= -0.1;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             vertical *= -0.001;
+    //         else
+    //             vertical *= -0.01;
+    //         cameraPos += vertical;
+    //         cameraTarg += vertical;
+    //     }
+    //     else if (nKey == GLFW_KEY_C)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         glm::vec3 vertical = glm::normalize(glm::cross(direction, glm::vec3(1.0f, 0.0f, 0.0f)));
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             vertical *= 0.1;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             vertical *= 0.001;
+    //         else
+    //             vertical *= 0.01;
+    //         cameraPos += vertical;
+    //         cameraTarg += vertical;
+    //     }
+    //     else if (nKey == GLFW_KEY_N)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         glm::vec3 vertical = glm::normalize(glm::cross(direction, glm::vec3(1.0f, 0.0f, 0.0f)));
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             vertical *= -10;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             vertical *= -1;
+    //         else
+    //             vertical *= -0.01;
+    //         cameraPos += vertical;
+    //         cameraTarg += vertical;
+    //     }
+    //     else if (nKey == GLFW_KEY_M)
+    //     {
+    //         glm::vec3 direction = glm::normalize(cameraTarg - cameraPos);
+    //         glm::vec3 vertical = glm::normalize(glm::cross(direction, glm::vec3(1.0f, 0.0f, 0.0f)));
+    //         if (nMode == GLFW_MOD_SHIFT)
+    //             vertical *= 10;
+    //         else if (nMode == GLFW_MOD_CONTROL)
+    //             vertical *= 1;
+    //         else
+    //             vertical *= 0.01;
+    //         cameraPos += vertical;
+    //         cameraTarg += vertical;
+    //     }
+    //     else if (nKey == GLFW_KEY_U) // 还原视图
+    //     {
+    //         cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    //         cameraTarg = glm::vec3(0.0f, 0.0f, 0.0f);
+    //     }
+    }
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+
+void mouseFunc(GLFWwindow *window, int button, int action, int mods)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
+    // static int i = 0;
+    if (action == GLFW_PRESS)
+    {
+        switch (button)
+        {
+        case GLFW_MOUSE_BUTTON_LEFT:
+        {
+            std::cout<<"mouse: Left Btn:"<<button<<std::endl;
+    //         printf("%.3f %.3f\t\t%.3f, %.3f\t\t\tLeft button clicked!\n", mousePos.x, mousePos.y, mousePos.z, mousePos.w);
+        }
+        break;
+        case GLFW_MOUSE_BUTTON_MIDDLE:
+            std::cout<<"mouse: Mind Btn:"<<button<<std::endl;
+    //         printf("Middle button clicked\n%.3f\n%.3f\n", mousePos.z, mousePos.w);
+    //         i = 0;
+            break;
+        case GLFW_MOUSE_BUTTON_RIGHT:
+            std::cout<<"mouse: Right Btn:"<<button<<std::endl;
+    //         printf("%.3f, %.3f, // %d \n", mousePos.z, mousePos.w, i++);
+    //         // printf("%.3f, %.3f, // %d \n", mousePos.z, mousePos.w, i++);
+            break;
+        default:
+            std::cout<<"Default Btn:"<<button<<std::endl;
+            return;
+        }
+    }
+    return;
+}
+
+
+void cursorFunc(GLFWwindow *window, double x, double y)
+{
+    std::cout<<"cursor x:"<<x<<" y:"<<y<<std::endl;
+    // float xpos = float((x - WIDTH / 2) / WIDTH) * 2;
+    // float ypos = float(0 - (y - HEIGH / 2) / HEIGH) * 2;
+    // // printf("Mouse position move to [ %.3f : %.3f ]\n", xpos, ypos);
+    // mousePos = glm::vec4(x, y, xpos, ypos);
+    return;
+}
+
+
+void scrollFunc(GLFWwindow *window, double x, double y)
+{
+    std::cout<<"scroll x:"<<x <<" y:"<<y<<std::endl;
+    // if (fov >= 1.0f && fov <= 45.0f) {
+    //   fov -= y;
+    // }
+
+    // fov = fov <= 1.0f ? 1.0f : fov;
+    // fov = fov >= 45.0f ? 45.0f : fov;
+    // dFov -= (float)y;
+    // if (dFov >= 180)
+    //     dFov = 179;
 }
