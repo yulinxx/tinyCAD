@@ -2,9 +2,10 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <random>
 
 #include "shader.h"
-
+#include "DataDefine.h"
 
 // 回调函数
 void keyFun(GLFWwindow *pWnd, int nKey, int nScanCode, int nAction, int nMode);
@@ -77,6 +78,37 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0); 
 
+
+    Lines lineData; 
+    lineData.emplace_back(Pt(0.2, 0.3));
+    lineData.emplace_back(Pt(0.5, 0.5));
+    lineData.emplace_back(Pt(0.3, 0.1));
+    lineData.emplace_back(Pt(0.8, 0.9));
+    lineData.emplace_back(Pt(0.7, 0.2));
+
+    std::default_random_engine e;
+    std::uniform_real_distribution<double >u(-1,1);
+    PtVecs pts;
+    for (size_t i = 0; i < 60; i++)
+    {
+        pts.emplace_back(u(e));
+    }
+
+    unsigned int lineVBO, lineVAO;
+    glGenVertexArrays(1, &lineVAO);
+    glGenBuffers(1, &lineVBO);
+
+    glBindVertexArray(lineVAO);  
+    glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+    glBufferData(GL_ARRAY_BUFFER, pts.size() * sizeof(double), &pts[0], GL_STATIC_DRAW);
+
+    //GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+    glVertexAttribPointer(0, 2, GL_DOUBLE, GL_FALSE, 2 * sizeof(double), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindVertexArray(0); 
+
     // timing
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
@@ -93,9 +125,13 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         lineShader.use();
-        glBindVertexArray(VAO);
+        // glBindVertexArray(VAO);
     
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        glBindVertexArray(lineVAO);
+        // glDrawArrays(GL_LINE_LOOP, 0, pts.size() / 2);
+        glDrawArrays(GL_LINE_STRIP, 0, pts.size() / 2);
 
         glfwSwapBuffers(pWnd);
         glfwPollEvents();
