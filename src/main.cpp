@@ -3,32 +3,22 @@
 
 #include <iostream>
 
+#include "shader.h"
+
+
 // 回调函数
 void keyFun(GLFWwindow *pWnd, int nKey, int nScanCode, int nAction, int nMode);
 void mouseFunc(GLFWwindow *pWnd, int, int, int);
-void cursorFunc(GLFWwindow *window, double x, double y);
-void scrollFunc(GLFWwindow *window, double x, double y);
+void cursorFunc(GLFWwindow *pWnd, double x, double y);
+void scrollFunc(GLFWwindow *pWnd, double x, double y);
 
 // settings
-const unsigned int SCR_WIDTH = 1200;
-const unsigned int SCR_HEIGHT = 800;
+const unsigned int WND_WIDTH = 1200;
+const unsigned int WND_HEIGHT = 800;
 
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
-
+/////////////////////////////////////////////////////////////
 int main()
 {
-    // glfw: initialize and configure
     // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -39,23 +29,21 @@ int main()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-    if (window == NULL)
+    GLFWwindow* pWnd = glfwCreateWindow(WND_WIDTH, WND_HEIGHT, "tinyCAD", NULL, NULL);
+    if (pWnd == NULL)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        std::cout << "Failed to create GLFW pWnd" << std::endl;
         glfwTerminate();
         return -1;
     }
 
-    glfwMakeContextCurrent(window);
-    glfwSetKeyCallback(window, keyFun);
-    glfwSetCursorPosCallback(window, cursorFunc);
-    glfwSetMouseButtonCallback(window, mouseFunc);
-    glfwSetScrollCallback(window, scrollFunc);
+    glfwMakeContextCurrent(pWnd);
+    glfwSetKeyCallback(pWnd, keyFun);
+    glfwSetCursorPosCallback(pWnd, cursorFunc);
+    glfwSetMouseButtonCallback(pWnd, mouseFunc);
+    glfwSetScrollCallback(pWnd, scrollFunc);
 
-    // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -63,48 +51,10 @@ int main()
         return -1;
     }
 
-
-    // build and compile our shader program
     // ------------------------------------
-    // vertex shader
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    // check for shader compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // fragment shader
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // link shaders
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    Shader lineShader("line.vs", "line.fs");
+    unsigned int shaderProgram = lineShader.ID;
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
         -0.5f, -0.5f, 0.0f, // left  
@@ -112,96 +62,45 @@ int main()
          0.0f,  0.5f, 0.0f  // top   
         }; 
 
-    // VBO：Vertex Buffer Object，顶点缓冲对象。
-    // 可以存储大量顶点，因而我们可以利用VBO一次性发送一大批数据到显卡上。
-    // 顶点缓冲对象VBO是在显卡存储空间中开辟出的一块内存缓存区，用于存储顶点的各类属性信息，
-    // 如顶点坐标，顶点法向量，顶点颜色数据等。在渲染时，可以直接从VBO中取出顶点的各类属性数据，
-    // 由于VBO在显存而不是在内存中，不需要从CPU传输数据，处理效率更高。
-    // VBO是 CPU 和 GPU 之间传递信息的桥梁，我们把数据存入VBO(这一步在CPU执行)，然后VBO会自动把数据送入GPU。
-    // 送入GPU这一步，不需任何人为操作，用户只负责往VBO中存入数据就可以了。
-
-    // VAO：Vertex Array Object，顶点数组对象。
-    // 一个VAO，配置并告诉了我们该如何使用VBO（包括如何解读VBO中的数据），以及使用哪个VBO。使用VAO管理VBO
-    // VBO保存了一个模型的顶点属性信息，每次绘制模型之前需要绑定顶点的所有信息，当数据量很大时，重复这样的动作变得非常麻烦。
-    // VAO可以把这些所有的配置都存储在一个对象中，每次绘制模型时，只需要绑定这个VAO对象就可以了。
-    // VAO是一个保存了所有顶点数据属性的状态结合，它存储了顶点数据的格式以及顶点数据所需的VBO对象的引用。
-    // VAO本身并没有存储顶点的相关属性数据，这些信息是存储在VBO中的，VAO相当于是对很多个VBO的引用，把一些VBO组合在一起作为一个对象统一管理。
-    // https://blog.csdn.net/dcrmg/article/details/53556664
-
-    // EBO：Element Buffer Object，索引缓冲对象
-
     unsigned int VBO, VAO;
 
     glGenVertexArrays(1, &VAO); // 生成一个VAO对象
-
     glGenBuffers(1, &VBO);  // 建VBO的第一步需要开辟（声明/获得）显存空间并分配VBO的ID,通过这个ID可以对特定的VBO内的数据进行存取操作。
 
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    // 绑定VAO对象, 执行VAO绑定之后其后的所有VBO配置都是这个VAO对象的一部分，可以说VBO是对顶点属性信息的绑定，VAO是对很多个VBO的绑定。
     glBindVertexArray(VAO);  
-
-    // 创建的VBO可用来保存不同类型的顶点数据,创建之后需要通过分配的ID绑定（bind）一下制定的VBO，
-    // 对于同一类型的顶点数据一次只能绑定一个VBO。
-    // 绑定操作通过 glBindBuffer 来实现，第一个参数指定绑定的数据类型，可以是
-    // GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, GL_PIXEL_PACK_BUFFER或者GL_PIXEL_UNPACK_BUFFER中的一个。
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    // 调用 glBufferData 把用户定义的数据传输到当前绑定的显存缓冲区中。
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // 顶点数据传入GPU之后，还需要通知OpenGL如何解释这些顶点数据，这个工作由函数glVertexAttribPointer完成：
-    // 第一个参数指定顶点属性位置，与 顶点着色器 中 layout(location=0) 对应。
-    // 第二个参数指定顶点属性大小。
-    // 第三个参数指定数据类型。
-    // 第四个参数定义是否希望数据被标准化。
-    // 第五个参数是步长（Stride），指定在连续的顶点属性之间的间隔。
-    // 第六个参数表示我们的位置数据在缓冲区起始位置的偏移量。
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0); 
 
-
-    // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // timing
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
 
     // render loop
-    // -----------
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(pWnd))
     {
-        // input
-        // -----
-        // processInput(window);
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        // std::cout<<deltaTime<<std::endl;
 
-        // render
-        // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // draw our first triangle
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-
-        // OpenGL中所有的图形都是通过分解成三角形的方式进行绘制，
-        // glDrawArrays函数负责把模型绘制出来，它使用当前激活的着色器，
-        // 当前VAO对象中的VBO顶点数据和属性配置来绘制出来基本图形。
+        lineShader.use();
+        glBindVertexArray(VAO);
+    
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        // glBindVertexArray(0); // no need to unbind it every time 
- 
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(pWnd);
         glfwPollEvents();
     }
 
-    // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
@@ -213,8 +112,7 @@ int main()
     return 0;
 }
 
-
-
+/////////////////////////////////////////////////////////////
 
 void keyFun(GLFWwindow *pWnd, int nKey, int nScanCode, int nAction, int nMode)
 {
@@ -376,7 +274,7 @@ void keyFun(GLFWwindow *pWnd, int nKey, int nScanCode, int nAction, int nMode)
 }
 
 
-void mouseFunc(GLFWwindow *window, int button, int action, int mods)
+void mouseFunc(GLFWwindow *pWnd, int button, int action, int mods)
 {
     // static int i = 0;
     if (action == GLFW_PRESS)
@@ -408,9 +306,9 @@ void mouseFunc(GLFWwindow *window, int button, int action, int mods)
 }
 
 
-void cursorFunc(GLFWwindow *window, double x, double y)
+void cursorFunc(GLFWwindow *pWnd, double x, double y)
 {
-    std::cout<<"cursor x:"<<x<<" y:"<<y<<std::endl;
+    // std::cout<<"cursor x:"<<x<<" y:"<<y<<std::endl;
     // float xpos = float((x - WIDTH / 2) / WIDTH) * 2;
     // float ypos = float(0 - (y - HEIGH / 2) / HEIGH) * 2;
     // // printf("Mouse position move to [ %.3f : %.3f ]\n", xpos, ypos);
@@ -419,7 +317,7 @@ void cursorFunc(GLFWwindow *window, double x, double y)
 }
 
 
-void scrollFunc(GLFWwindow *window, double x, double y)
+void scrollFunc(GLFWwindow *pWnd, double x, double y)
 {
     std::cout<<"scroll x:"<<x <<" y:"<<y<<std::endl;
     // if (fov >= 1.0f && fov <= 45.0f) {
