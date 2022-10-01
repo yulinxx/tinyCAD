@@ -52,47 +52,16 @@ int main()
         return -1;
     }
 
-    // ------------------------------------
-    Shader lineShader("line.vs", "line.fs");
-    unsigned int shaderProgram = lineShader.ID;
-
     // ------------------------------------------------------------------
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f  // top   
-        }; 
-
-    unsigned int VBO, VAO;
-
-    glGenVertexArrays(1, &VAO); // 生成一个VAO对象
-    glGenBuffers(1, &VBO);  // 建VBO的第一步需要开辟（声明/获得）显存空间并分配VBO的ID,通过这个ID可以对特定的VBO内的数据进行存取操作。
-
-    glBindVertexArray(VAO);  
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0); 
-
-
-    Lines lineData; 
-    lineData.emplace_back(Pt(0.2, 0.3));
-    lineData.emplace_back(Pt(0.5, 0.5));
-    lineData.emplace_back(Pt(0.3, 0.1));
-    lineData.emplace_back(Pt(0.8, 0.9));
-    lineData.emplace_back(Pt(0.7, 0.2));
+    Shader lineShader("line.vs", "line.fs");
+    unsigned int lineShaderID = lineShader.ID;
 
     std::default_random_engine e;
     std::uniform_real_distribution<double >u(-1,1);
-    PtVecs pts;
-    for (size_t i = 0; i < 60; i++)
-    {
-        pts.emplace_back(u(e));
-    }
+
+    Lines lineData; 
+    for (size_t i = 0; i < 20; i++)
+        lineData.emplace_back(Pt(u(e), u(e), 0.4));
 
     unsigned int lineVBO, lineVAO;
     glGenVertexArrays(1, &lineVAO);
@@ -100,10 +69,32 @@ int main()
 
     glBindVertexArray(lineVAO);  
     glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-    glBufferData(GL_ARRAY_BUFFER, pts.size() * sizeof(double), &pts[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, lineData.size() * sizeof(Pt), &lineData[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
 
-    //GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
-    glVertexAttribPointer(0, 2, GL_DOUBLE, GL_FALSE, 2 * sizeof(double), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindVertexArray(0); 
+
+    // ------------------------------------------------------------------
+    Shader solidShader("solids.vs", "solids.fs");
+    unsigned int solidShaderID = solidShader.ID;
+    float vertices[] = {
+        -0.5f, -0.5f, 0.5f, // left  
+         0.5f, -0.5f, 0.5f, // right 
+         0.0f,  0.5f, 0.5f  // top   
+        }; 
+
+    unsigned int solidVBO, solidVAO;
+    glGenVertexArrays(1, &solidVAO);
+    glGenBuffers(1, &solidVBO);
+
+    glBindVertexArray(solidVAO);  
+    glBindBuffer(GL_ARRAY_BUFFER, solidVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
@@ -123,24 +114,26 @@ int main()
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         lineShader.use();
-        // glBindVertexArray(VAO);
-    
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-
         glBindVertexArray(lineVAO);
-        // glDrawArrays(GL_LINE_LOOP, 0, pts.size() / 2);
-        glDrawArrays(GL_LINE_STRIP, 0, pts.size() / 2);
+        glDrawArrays(GL_LINE_STRIP, 0, lineData.size());
+
+        solidShader.use();
+        glBindVertexArray(solidVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(pWnd);
         glfwPollEvents();
     }
 
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
+    glDeleteVertexArrays(1, &solidVAO);
+    glDeleteBuffers(1, &solidVBO);
+    glDeleteProgram(lineShaderID);
+    glDeleteProgram(solidShaderID);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
