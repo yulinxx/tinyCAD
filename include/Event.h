@@ -1,11 +1,11 @@
 #ifndef _EVENT_H_
 #define _EVENT_H_
 
-class event
+class Event
 {
 public:
-    event() = default;
-    virtual ~event() = default;
+    Event() = default;
+    virtual ~Event() = default;
 };
 
 #endif //_EVENT_H_
