@@ -1,6 +1,3 @@
-#include <glad/glad.h> // glad.h 必须放在glfw3.h 或者glut.h文件之前。
-#include <GLFW/glfw3.h>
-
 #include "window.h"
 
 /////////////////////////////////////////////////////////////
