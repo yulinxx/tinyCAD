@@ -14,6 +14,13 @@
 #include "KeyEvent.h"
 #include "WindowEvent.h"
 
+
+window::~window()
+{
+    glfwDestroyWindow(m_pWnd);
+    glfwTerminate();
+}
+
 bool window::initWnd(int w, int h, std::string& strName)
 {
     glfwInit();
@@ -43,83 +50,78 @@ bool window::initWnd(int w, int h, std::string& strName)
         return false;
     }
     
-    // glfwSetWindowUserPointer(m_pWnd, &m_WindowInfo);  // 暂时存储窗口数据
+    m_wndInfo = WndInfo(w, h, strName);
+    glfwSetWindowUserPointer(m_pWnd, &m_wndInfo);  // 暂时存储窗口数据
 
     // callback functrions
     {
-        glfwSetWindowSizeCallback(m_pWnd, [](GLFWwindow* window, int width, int height)
-			{
+        glfwSetWindowSizeCallback(m_pWnd, [](GLFWwindow *window, int width, int height){
 				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
 				info->W = width;
 				info->H = height;
 				
 				ResizeEvent resizeEvent(info->W, info->H);
-				// info->EventCallback(resizeEvent);
-			});
+				// info->EventCallback(resizeEvent); 
+            } );
 
-		glfwSetCursorPosCallback(m_pWnd, [](GLFWwindow* window, double xpos, double ypos)
-			{
+        glfwSetCursorPosCallback(m_pWnd, [](GLFWwindow *window, double xpos, double ypos){
 				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
 				MouseMoveEvent mouseMoveEvent(xpos, ypos);
-				// info->EventCallback(mouseMoveEvent);
-			});
+				// info->EventCallback(mouseMoveEvent); 
+            } );
 
-		glfwSetWindowCloseCallback(m_pWnd, [](GLFWwindow* window)
-			{
+        glfwSetWindowCloseCallback(m_pWnd, [](GLFWwindow *window){
 				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
 				WindowCloseEvent windowCloseEvent;
 				// info->EventCallback(windowCloseEvent); 
-			});
+            } );
 
-		glfwSetScrollCallback(m_pWnd, [](GLFWwindow* window, double xoffset, double yoffset)
-			{
+        glfwSetScrollCallback(m_pWnd, [](GLFWwindow *window, double xoffset, double yoffset){
 				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
 				MouseScrolledEvent mouseScrolledEvent(xoffset, yoffset);
-				// info->EventCallback(mouseScrolledEvent);
-			});
+				// info->EventCallback(mouseScrolledEvent); 
+            } );
 
-		glfwSetMouseButtonCallback(m_pWnd, [](GLFWwindow* window, int button, int action, int mods)
-			{
-				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
+        glfwSetMouseButtonCallback(m_pWnd, [](GLFWwindow *window, int button, int action, int mods){
+                auto info = (WndInfo*)glfwGetWindowUserPointer(window);
                 switch (action)
                 {
                 case GLFW_PRESS:
                 {
-                    	MousePressEvent mousePressEvent(button, action, mods);
-                    // 	info->EventCallback(mousePressEvent);
+                    MousePressEvent mousePressEvent(button, action, mods);
+                    // info->EventCallback(mousePressEvent);
                 }
                 break;
                 case GLFW_RELEASE:
                 {
-                    	MouseReleaseEvent mouseReleaseEvent(button, action, mods);
-                    // 	info->EventCallback(mouseReleaseEvent);
+                    MouseReleaseEvent mouseReleaseEvent(button, action, mods);
+                    // info->EventCallback(mouseReleaseEvent);
                 }
                 break;
                 default:
                     break;
-                }
-			});
+                } 
+            });
 
-		glfwSetKeyCallback(m_pWnd, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-			{
+        glfwSetKeyCallback(m_pWnd, [](GLFWwindow* window, int key, int scancode, int action, int mods){
 				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
                 switch (action)
                 {
                 case GLFW_PRESS:
                 {
-                    // KeyboardPressEvent keyPressEvent(key, scancode, action);
+                    KeyPressEvent keyPressEvent(key, scancode, action, mods);
                     // info->EventCallback(keyPressEvent);
                 }
                 break;
                 case GLFW_RELEASE:
                 {
-                    // KeyboardReleaseEvent keyReleaseEvent(key, scancode, action);
+                    KeyReleaseEvent keyReleaseEvent(key, scancode, action, mods);
                     // info->EventCallback(keyReleaseEvent);
                 }
                 break;
                 case GLFW_REPEAT:
                 {
-                    // KeyboardPressEvent keyPressEvent(key, scancode, action);
+                    KeyPressEvent keyPressEvent(key, scancode, action, mods);
                     // info->EventCallback(keyPressEvent);
                 }
                 break;
@@ -218,7 +220,6 @@ bool window::run()
     glDeleteProgram(lineShaderID);
     glDeleteProgram(solidShaderID);
 
-    glfwTerminate();
 
     return true;
 }

@@ -7,10 +7,16 @@
 class KeyPressEvent : public Event
 {
 public:
-    KeyPressEvent() = default;
+    KeyPressEvent(int key, int scancode, int action, int mods);
     virtual ~KeyPressEvent() = default;
     
 public:
+
+private:
+    int m_nKey = 0;
+    int m_nScancode = 0;
+    int m_nAction = 0;
+    int m_nMods = 0;
 
 };
 
@@ -19,10 +25,16 @@ public:
 class KeyReleaseEvent : public Event
 {
 public:
-    KeyReleaseEvent() = default;
+    KeyReleaseEvent(int key, int scancode, int action, int mods);
     virtual ~KeyReleaseEvent() = default;
     
 public:
 
+private:
+    int m_nKey = 0;
+    int m_nScancode = 0;
+    int m_nAction = 0;
+    int m_nMods = 0;
 };
+
 #endif //_KEY_EVENT_H

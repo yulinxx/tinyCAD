@@ -2,33 +2,14 @@
 #define _WINDOW_H_
 
 #include <string>
-
 #include <functional>
 
 #include "Event.h"
 
-using EventFunc = std::function<void(Event&)>;
-
 class GLFWwindow;
 
-
-// 集中数据的同时方便后面lambda表达式的书写
-// typedef struct _WindowInfo
-// {
-//     std::string Name;
-//     int Width;
-//     int Height;
-
-//     // EventFunc EventCallback;
-
-//     _WindowInfo(int width, int height, std::string name) 
-//     {
-//         Width = width;
-//         Height = height;
-//         Name = name;
-//     }
-// }WndInfo;
-
+// using EventFunc = std::function< void(Event&) >;
+// std::function< void(Event&) > EventFunc = f;
 
 struct WndInfo
 {
@@ -36,7 +17,8 @@ struct WndInfo
     int H = 600;
     std::string Name = "tinyCAD";
 
-    EventFunc EventCallback;
+    // EventFunc EventCallback;
+    Event* e;
 
     WndInfo(){}
 
@@ -50,7 +32,7 @@ class window
 {
 public:
     window() = default;
-    ~window() = default;
+    ~window();
 
 public:
     bool initWnd(int w, int h, std::string& strName);
@@ -62,7 +44,7 @@ public:
 private:
     GLFWwindow* m_pWnd = nullptr;
 
-    WndInfo info;
+    WndInfo m_wndInfo;
     
 };
 
