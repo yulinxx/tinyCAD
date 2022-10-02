@@ -1,3 +1,6 @@
+#ifndef _DATA_DEFINE_H_
+#define _DATA_DEFINE_H_
+
 #include <vector>
 
 struct Pt
@@ -15,3 +18,6 @@ struct Pt
 };
 
 using Lines = std::vector<Pt>;
+
+
+#endif //_DATA_DEFINE_H_
