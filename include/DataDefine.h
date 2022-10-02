@@ -17,7 +17,7 @@ struct Pt
     double z = 0.0;
 };
 
-using Lines = std::vector<Pt>;
+using LinePts = std::vector<Pt>;
 
 
 #endif //_DATA_DEFINE_H_

@@ -1,6 +1,7 @@
 #include "Window.h"
 
-#include <glad/glad.h> // glad.h 必须放在glfw3.h 或者glut.h文件之前。
+ // glad.h 必须放在glfw3.h 或者glut.h文件之前。
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -8,7 +9,6 @@
 #include <functional>
 
 #include "LineItem.h"
-// #include "Shader.h"
 #include "DataDefine.h"
 
 #include "MouseEvent.h"
@@ -18,6 +18,9 @@
 
 Window::~Window()
 {
+    for(auto& item : m_vecItems)
+        SAFE_DELETE(item);
+
     glfwDestroyWindow(m_pWnd);
     glfwTerminate();
 }
@@ -51,7 +54,6 @@ bool Window::initWnd(int w, int h, std::string& strName)
         return false;
     }
     
-    m_wndInfo = WndInfo(w, h, strName);
     glfwSetWindowUserPointer(m_pWnd, this);  // 存储window类
 
     // callback functrions
@@ -95,7 +97,6 @@ bool Window::initWnd(int w, int h, std::string& strName)
             {
                 MouseReleaseEvent e(button, action, mods);
                 wnd->mouseReleaseEvent(e);
-                
             }
             break;
             default:
@@ -137,53 +138,6 @@ bool Window::initWnd(int w, int h, std::string& strName)
 
 bool Window::run()
 {
-    Shader lineShader("line.vs", "line.fs");
-    unsigned int lineShaderID = lineShader.ID;
-
-    std::default_random_engine e(unsigned int(time(0)));
-    std::uniform_real_distribution<double >u(-1,1);
-
-    Lines lineData; 
-    for (size_t i = 0; i < 20; i++)
-        lineData.emplace_back(Pt(u(e), u(e), 0.4));
-
-    unsigned int lineVBO, lineVAO;
-    glGenVertexArrays(1, &lineVAO);
-    glGenBuffers(1, &lineVBO);
-
-    glBindVertexArray(lineVAO);  
-    glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-    glBufferData(GL_ARRAY_BUFFER, lineData.size() * sizeof(Pt), &lineData[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
-
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0); 
-
-    // --------------------
-    Shader solidShader("solids.vs", "solids.fs");
-    unsigned int solidShaderID = solidShader.ID;
-    float vertices[] = {
-        -0.5f, -0.5f, 0.5f, // left  
-         0.5f, -0.5f, 0.5f, // right 
-         0.0f,  0.5f, 0.5f  // top   
-        }; 
-
-    unsigned int solidVBO, solidVAO;
-    glGenVertexArrays(1, &solidVAO);
-    glGenBuffers(1, &solidVBO);
-
-    glBindVertexArray(solidVAO);  
-    glBindBuffer(GL_ARRAY_BUFFER, solidVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0); 
-
     // timing
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
@@ -201,30 +155,14 @@ bool Window::run()
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // lineShader.use();
-        // glBindVertexArray(lineVAO);
-        // glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineData.size()));
-
-        // solidShader.use();
-        // glBindVertexArray(solidVAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-
-
-        if(m_pNewItem && m_pItemShader)
+        for(const auto& item : m_vecItems)
         {
-            m_pItemShader->use();
-            glBindVertexArray(m_nItemVAO);
-            glDrawArrays(GL_LINE_STRIP, 0, GLsizei(m_linesPt.size()));
+            item->render();
         }
 
         glfwSwapBuffers(m_pWnd);
         glfwPollEvents();
     }
-   
-    glDeleteVertexArrays(1, &solidVAO);
-    glDeleteBuffers(1, &solidVBO);
-    glDeleteProgram(lineShaderID);
-    glDeleteProgram(solidShaderID);
 
     return true;
 }
@@ -253,19 +191,14 @@ void Window::keyPressEvent(KeyPressEvent& e)
     else if (e.m_nKey == GLFW_KEY_N)
     {
         std::cout << "Key N" << std::endl;
-        // new line
-        if (m_pNewItem)
-            delete m_pNewItem;
-
-        m_pNewItem = new LineItem();
-        m_linesPt.clear();
+        
     }
     else if(e.m_nKey == GLFW_KEY_ESCAPE)
     {
-        if(m_pNewItem && m_linesPt.size() > 2)
-        {
-            createLineGL();
-        }
+        if(m_bNewItem)
+            m_vecItems.emplace_back(m_pNewItem);
+
+        m_bNewItem = false;
     }
     std::cout << "Key Press:" << e.m_nKey << " Act:" << e.m_nAction << " Mods:" << e.m_nMods << " Scancode:" << e.m_nScancode << std::endl;
 }
@@ -295,17 +228,30 @@ void Window::mousePressEvent(MousePressEvent& e)
     case GLFW_MOUSE_BUTTON_LEFT:
         std::cout<<"Left"<<std::endl;
         {
-            if(m_pNewItem)
+            if(!m_pNewItem)
             {
-                m_linesPt.emplace_back(m_pt.x * 2 / 1200 - 1, -1 * (m_pt.y * 2 / 800 - 1));
-                std::cout<<" X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1);
+                m_bNewItem = true;
+                m_pNewItem = new LineItem();
+                m_vecItems.emplace_back(m_pNewItem);
+                
+                m_pNewItem->addPt( Pt(m_pt.x * 2 / 1200 - 1, -1 * (m_pt.y * 2 / 800 - 1)) );
             }
+            else
+            {
+                m_pNewItem->addPt( Pt(m_pt.x * 2 / 1200 - 1, -1 * (m_pt.y * 2 / 800 - 1)) ); 
+            }
+            
+            std::cout<<" X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1); 
         }
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
         std::cout<<"Middle"<<" X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1);
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
+        m_bNewItem = false;
+        
+        m_pNewItem = nullptr;
+
         std::cout<<"Right"<<std::endl;
         break;
     default:
@@ -344,30 +290,4 @@ void Window::mouseMoveEvent(MouseMoveEvent& e)
     m_pt.x = e.m_dX;
     m_pt.y = e.m_dY;
     m_pt.z = 0.0;
-}
-
-
-void Window::createLineGL()
-{
-    if(m_linesPt.size() < 2)
-        return;
-    if(!m_pItemShader)
-    {
-        m_pItemShader = new Shader("line.vs", "line.fs");
-        m_nItemShaderID = m_pItemShader->ID;
-    }
-
-    unsigned int lineVBO;
-    glGenVertexArrays(1, &m_nItemVAO);
-    glGenBuffers(1, &lineVBO);
-
-    glBindVertexArray(m_nItemVAO);  
-    glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-    glBufferData(GL_ARRAY_BUFFER, m_linesPt.size() * sizeof(Pt), &m_linesPt[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
-
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0); 
 }

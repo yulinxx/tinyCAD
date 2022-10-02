@@ -22,24 +22,6 @@ class MousePressEvent;
 class MouseReleaseEvent;
 class MouseMoveEvent;
 
-// using EventFunc = std::function< void(Event&) >;
-// std::function< void(Event&) > EventFunc = f;
-
-struct WndInfo
-{
-    int W = 800;
-    int H = 600;
-    std::string Name = "tinyCAD";
-
-    // EventFunc EventCallback;
-    Event* e;
-
-    WndInfo(){}
-
-    WndInfo(int w, int h, std::string name)
-    : W(w), H(h), Name(name){}
-};
-
 //////////////////////////////////////////////////////
 
 class Window
@@ -67,20 +49,14 @@ private:
     void mouseMoveEvent(MouseMoveEvent& e);
 
 private:
-    void createLineGL();
-
-private:
     GLFWwindow* m_pWnd = nullptr;
 
-    WndInfo m_wndInfo;
-    
+   std::vector<Item*> m_vecItems; 
+   bool m_bNewItem = false;
 
     Item* m_pNewItem = nullptr;
-    Lines m_linesPt;
+
     Pt      m_pt;
-    unsigned int m_nItemVAO;
-    Shader* m_pItemShader = nullptr;
-    unsigned int m_nItemShaderID = 0;
 };
 
 #endif //_WINDOW_H_
