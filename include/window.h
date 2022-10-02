@@ -4,9 +4,13 @@
 #include <string>
 #include <functional>
 
+#include "DataDefine.h"
 #include "Event.h"
 
+#include "Shader.h"
+
 class GLFWwindow;
+class Item;
 
 class ResizeEvent;
 class WindowCloseEvent;
@@ -63,10 +67,20 @@ private:
     void mouseMoveEvent(MouseMoveEvent& e);
 
 private:
+    void createLineGL();
+
+private:
     GLFWwindow* m_pWnd = nullptr;
 
     WndInfo m_wndInfo;
     
+
+    Item* m_pNewItem = nullptr;
+    Lines m_linesPt;
+    Pt      m_pt;
+    unsigned int m_nItemVAO;
+    Shader* m_pItemShader = nullptr;
+    unsigned int m_nItemShaderID = 0;
 };
 
 #endif //_WINDOW_H_

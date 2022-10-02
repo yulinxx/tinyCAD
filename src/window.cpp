@@ -7,13 +7,14 @@
 #include <random>
 #include <functional>
 
-#include "shader.h"
+#include "LineItem.h"
+// #include "Shader.h"
 #include "DataDefine.h"
 
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #include "WindowEvent.h"
-
+#include "LineItem.h"
 
 Window::~Window()
 {
@@ -51,8 +52,7 @@ bool Window::initWnd(int w, int h, std::string& strName)
     }
     
     m_wndInfo = WndInfo(w, h, strName);
-    // glfwSetWindowUserPointer(m_pWnd, &m_wndInfo);  // 暂时存储窗口数据
-    glfwSetWindowUserPointer(m_pWnd, this);  // 暂时存储窗口数据
+    glfwSetWindowUserPointer(m_pWnd, this);  // 存储window类
 
     // callback functrions
     {
@@ -201,13 +201,21 @@ bool Window::run()
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lineShader.use();
-        glBindVertexArray(lineVAO);
-        glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineData.size()));
+        // lineShader.use();
+        // glBindVertexArray(lineVAO);
+        // glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineData.size()));
 
-        solidShader.use();
-        glBindVertexArray(solidVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // solidShader.use();
+        // glBindVertexArray(solidVAO);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+        if(m_pNewItem && m_pItemShader)
+        {
+            m_pItemShader->use();
+            glBindVertexArray(m_nItemVAO);
+            glDrawArrays(GL_LINE_STRIP, 0, GLsizei(m_linesPt.size()));
+        }
 
         glfwSwapBuffers(m_pWnd);
         glfwPollEvents();
@@ -217,7 +225,6 @@ bool Window::run()
     glDeleteBuffers(1, &solidVBO);
     glDeleteProgram(lineShaderID);
     glDeleteProgram(solidShaderID);
-
 
     return true;
 }
@@ -235,27 +242,45 @@ void Window::closeEvent(WindowCloseEvent& e)
 
 void Window::keyPressEvent(KeyPressEvent& e)
 {
-    if(e.m_nKey == GLFW_KEY_W)
+    if (e.m_nKey == GLFW_KEY_W)
     {
-
+        std::cout << "Key W" << std::endl;
     }
     else if (e.m_nKey == GLFW_KEY_S)
     {
-    
+        std::cout << "Key S" << std::endl;
     }
+    else if (e.m_nKey == GLFW_KEY_N)
+    {
+        std::cout << "Key N" << std::endl;
+        // new line
+        if (m_pNewItem)
+            delete m_pNewItem;
+
+        m_pNewItem = new LineItem();
+        m_linesPt.clear();
+    }
+    else if(e.m_nKey == GLFW_KEY_ESCAPE)
+    {
+        if(m_pNewItem && m_linesPt.size() > 2)
+        {
+            createLineGL();
+        }
+    }
+    std::cout << "Key Press:" << e.m_nKey << " Act:" << e.m_nAction << " Mods:" << e.m_nMods << " Scancode:" << e.m_nScancode << std::endl;
 }
 
-void Window::keyReleaseEvent(KeyReleaseEvent& e)
+void Window::keyReleaseEvent(KeyReleaseEvent &e)
 {
-     if(e.m_nKey == GLFW_KEY_W)
+    if (e.m_nKey == GLFW_KEY_W)
     {
-        std::cout<<"Key W"<<std::endl;
+        std::cout << "Key W" << std::endl;
     }
     else if (e.m_nKey == GLFW_KEY_S)
     {
-        std::cout<<"Key S"<<std::endl;
+        std::cout << "Key S" << std::endl;
     }
-    std::cout<<"Key:"<<e.m_nKey<<" Act:"<<e.m_nAction<<" Mods:"<<e.m_nMods<<" Scancode:"<<e.m_nScancode<<std::endl;
+    std::cout << "Key Release:" << e.m_nKey << " Act:" << e.m_nAction << " Mods:" << e.m_nMods << " Scancode:" << e.m_nScancode << std::endl;
 }
 
 void Window::mouseScroolEvent(MouseScrolledEvent& e)
@@ -269,9 +294,16 @@ void Window::mousePressEvent(MousePressEvent& e)
     {
     case GLFW_MOUSE_BUTTON_LEFT:
         std::cout<<"Left"<<std::endl;
+        {
+            if(m_pNewItem)
+            {
+                m_linesPt.emplace_back(m_pt.x * 2 / 1200 - 1, -1 * (m_pt.y * 2 / 800 - 1));
+                std::cout<<" X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1);
+            }
+        }
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
-        std::cout<<"Middle"<<std::endl;
+        std::cout<<"Middle"<<" X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1);
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
         std::cout<<"Right"<<std::endl;
@@ -289,13 +321,16 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
     switch (e.m_nBtn)
     {
     case GLFW_MOUSE_BUTTON_LEFT:
+        std::cout<<"Left"<<std::endl;
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
+        std::cout<<"Middle"<<std::endl;
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
+        std::cout<<"Right"<<std::endl;
         break;
     default:
-        printf("Default \n");
+        std::cout<<"Default:"<<std::endl;
         return;
     }
     std::cout<<"Mouse Release Btn"<<e.m_nBtn<<" Act:"<<e.m_nAct<<" Mods:"<<e.m_nMods<<std::endl;
@@ -305,4 +340,34 @@ void Window::mouseMoveEvent(MouseMoveEvent& e)
 {
     if((int)e.m_dX % 100 == 0)
         std::cout<<"MouseMove:  X:"<<e.m_dX<<" Y:"<<e.m_dY<<std::endl;
+
+    m_pt.x = e.m_dX;
+    m_pt.y = e.m_dY;
+    m_pt.z = 0.0;
+}
+
+
+void Window::createLineGL()
+{
+    if(m_linesPt.size() < 2)
+        return;
+    if(!m_pItemShader)
+    {
+        m_pItemShader = new Shader("line.vs", "line.fs");
+        m_nItemShaderID = m_pItemShader->ID;
+    }
+
+    unsigned int lineVBO;
+    glGenVertexArrays(1, &m_nItemVAO);
+    glGenBuffers(1, &lineVBO);
+
+    glBindVertexArray(m_nItemVAO);  
+    glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+    glBufferData(GL_ARRAY_BUFFER, m_linesPt.size() * sizeof(Pt), &m_linesPt[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
+
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindVertexArray(0); 
 }
