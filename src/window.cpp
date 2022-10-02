@@ -1,4 +1,4 @@
-#include "window.h"
+#include "Window.h"
 
 #include <glad/glad.h> // glad.h 必须放在glfw3.h 或者glut.h文件之前。
 #include <GLFW/glfw3.h>
@@ -15,13 +15,13 @@
 #include "WindowEvent.h"
 
 
-window::~window()
+Window::~Window()
 {
     glfwDestroyWindow(m_pWnd);
     glfwTerminate();
 }
 
-bool window::initWnd(int w, int h, std::string& strName)
+bool Window::initWnd(int w, int h, std::string& strName)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -35,7 +35,7 @@ bool window::initWnd(int w, int h, std::string& strName)
     m_pWnd = glfwCreateWindow(w, h, strName.c_str(), nullptr, nullptr);
     if (m_pWnd == nullptr)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        std::cout << "Failed to create GLFW Window" << std::endl;
         glfwTerminate();
         return false;
     }
@@ -51,98 +51,96 @@ bool window::initWnd(int w, int h, std::string& strName)
     }
     
     m_wndInfo = WndInfo(w, h, strName);
-    glfwSetWindowUserPointer(m_pWnd, &m_wndInfo);  // 暂时存储窗口数据
+    // glfwSetWindowUserPointer(m_pWnd, &m_wndInfo);  // 暂时存储窗口数据
+    glfwSetWindowUserPointer(m_pWnd, this);  // 暂时存储窗口数据
 
     // callback functrions
     {
         glfwSetWindowSizeCallback(m_pWnd, [](GLFWwindow *window, int width, int height){
-				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
-				info->W = width;
-				info->H = height;
-				
-				ResizeEvent resizeEvent(info->W, info->H);
-				// info->EventCallback(resizeEvent); 
+            auto wnd = (Window*)glfwGetWindowUserPointer(window);
+            
+            ResizeEvent e(width, height);
+            wnd->resizeEvent(e); 
             } );
 
         glfwSetCursorPosCallback(m_pWnd, [](GLFWwindow *window, double xpos, double ypos){
-				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
-				MouseMoveEvent mouseMoveEvent(xpos, ypos);
-				// info->EventCallback(mouseMoveEvent); 
+            auto wnd = (Window*)glfwGetWindowUserPointer(window);
+            MouseMoveEvent e(xpos, ypos);
+            wnd->mouseMoveEvent(e);
             } );
 
         glfwSetWindowCloseCallback(m_pWnd, [](GLFWwindow *window){
-				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
-				WindowCloseEvent windowCloseEvent;
-				// info->EventCallback(windowCloseEvent); 
+            auto wnd = (Window*)glfwGetWindowUserPointer(window);
+            WindowCloseEvent e;
+            wnd->closeEvent(e);
             } );
 
         glfwSetScrollCallback(m_pWnd, [](GLFWwindow *window, double xoffset, double yoffset){
-				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
-				MouseScrolledEvent mouseScrolledEvent(xoffset, yoffset);
-				// info->EventCallback(mouseScrolledEvent); 
+            auto wnd = (Window*)glfwGetWindowUserPointer(window);
+            MouseScrolledEvent e(xoffset, yoffset);
+            wnd->mouseScroolEvent(e);
             } );
 
         glfwSetMouseButtonCallback(m_pWnd, [](GLFWwindow *window, int button, int action, int mods){
-                auto info = (WndInfo*)glfwGetWindowUserPointer(window);
-                switch (action)
-                {
-                case GLFW_PRESS:
-                {
-                    MousePressEvent mousePressEvent(button, action, mods);
-                    // info->EventCallback(mousePressEvent);
-                }
+            auto wnd = (Window*)glfwGetWindowUserPointer(window);
+            switch (action)
+            {
+            case GLFW_PRESS:
+            {
+                MousePressEvent e(button, action, mods);
+                wnd->mousePressEvent(e);
+            }
+            break;
+            case GLFW_RELEASE:
+            {
+                MouseReleaseEvent e(button, action, mods);
+                wnd->mouseReleaseEvent(e);
+                
+            }
+            break;
+            default:
                 break;
-                case GLFW_RELEASE:
-                {
-                    MouseReleaseEvent mouseReleaseEvent(button, action, mods);
-                    // info->EventCallback(mouseReleaseEvent);
-                }
-                break;
-                default:
-                    break;
-                } 
+            } 
             });
 
         glfwSetKeyCallback(m_pWnd, [](GLFWwindow* window, int key, int scancode, int action, int mods){
-				auto info = (WndInfo*)glfwGetWindowUserPointer(window);
-                switch (action)
-                {
-                case GLFW_PRESS:
-                {
-                    KeyPressEvent keyPressEvent(key, scancode, action, mods);
-                    // info->EventCallback(keyPressEvent);
-                }
+            auto wnd = (Window*)glfwGetWindowUserPointer(window);
+            switch (action)
+            {
+            case GLFW_PRESS:
+            {
+                KeyPressEvent e(key, scancode, action, mods);
+                wnd->keyPressEvent(e);
+            }
+            break;
+            case GLFW_RELEASE:
+            {
+                KeyReleaseEvent e(key, scancode, action, mods);
+                wnd->keyReleaseEvent(e);
+            }
+            break;
+            case GLFW_REPEAT:
+            {
+                KeyPressEvent e(key, scancode, action, mods);
+                std::cout<<"Key Repeat"<<std::endl;
+                wnd->keyPressEvent(e);
+            }
+            break;
+            default:
                 break;
-                case GLFW_RELEASE:
-                {
-                    KeyReleaseEvent keyReleaseEvent(key, scancode, action, mods);
-                    // info->EventCallback(keyReleaseEvent);
-                }
-                break;
-                case GLFW_REPEAT:
-                {
-                    KeyPressEvent keyPressEvent(key, scancode, action, mods);
-                    // info->EventCallback(keyPressEvent);
-                }
-                break;
-                default:
-                    break;
-                }
-			});
+            }
+        });
     }
-
-    
-    
     return true;
 }
 
 
-bool window::run()
+bool Window::run()
 {
     Shader lineShader("line.vs", "line.fs");
     unsigned int lineShaderID = lineShader.ID;
 
-    std::default_random_engine e(time(0));
+    std::default_random_engine e(unsigned int(time(0)));
     std::uniform_real_distribution<double >u(-1,1);
 
     Lines lineData; 
@@ -205,7 +203,7 @@ bool window::run()
 
         lineShader.use();
         glBindVertexArray(lineVAO);
-        glDrawArrays(GL_LINE_STRIP, 0, lineData.size());
+        glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineData.size()));
 
         solidShader.use();
         glBindVertexArray(solidVAO);
@@ -222,4 +220,89 @@ bool window::run()
 
 
     return true;
+}
+
+
+void Window::resizeEvent(ResizeEvent& e)
+{
+
+}
+
+void Window::closeEvent(WindowCloseEvent& e)
+{
+
+}
+
+void Window::keyPressEvent(KeyPressEvent& e)
+{
+    if(e.m_nKey == GLFW_KEY_W)
+    {
+
+    }
+    else if (e.m_nKey == GLFW_KEY_S)
+    {
+    
+    }
+}
+
+void Window::keyReleaseEvent(KeyReleaseEvent& e)
+{
+     if(e.m_nKey == GLFW_KEY_W)
+    {
+        std::cout<<"Key W"<<std::endl;
+    }
+    else if (e.m_nKey == GLFW_KEY_S)
+    {
+        std::cout<<"Key S"<<std::endl;
+    }
+    std::cout<<"Key:"<<e.m_nKey<<" Act:"<<e.m_nAction<<" Mods:"<<e.m_nMods<<" Scancode:"<<e.m_nScancode<<std::endl;
+}
+
+void Window::mouseScroolEvent(MouseScrolledEvent& e)
+{
+    std::cout<<"XOffset:"<<e.m_dXOffset<<" YOffset:"<<e.m_dYOffset<<std::endl;
+}
+
+void Window::mousePressEvent(MousePressEvent& e)
+{
+    switch (e.m_nBtn)
+    {
+    case GLFW_MOUSE_BUTTON_LEFT:
+        std::cout<<"Left"<<std::endl;
+        break;
+    case GLFW_MOUSE_BUTTON_MIDDLE:
+        std::cout<<"Middle"<<std::endl;
+        break;
+    case GLFW_MOUSE_BUTTON_RIGHT:
+        std::cout<<"Right"<<std::endl;
+        break;
+    default:
+        std::cout<<"Default:"<<std::endl;
+        return;
+    }
+
+    std::cout<<"Mouse Press Btn"<<e.m_nBtn<<" Act:"<<e.m_nAct<<" Mods:"<<e.m_nMods<<std::endl;
+}
+
+void Window::mouseReleaseEvent(MouseReleaseEvent& e)
+{
+    switch (e.m_nBtn)
+    {
+    case GLFW_MOUSE_BUTTON_LEFT:
+        break;
+    case GLFW_MOUSE_BUTTON_MIDDLE:
+        break;
+    case GLFW_MOUSE_BUTTON_RIGHT:
+        break;
+    default:
+        printf("Default \n");
+        return;
+    }
+    std::cout<<"Mouse Release Btn"<<e.m_nBtn<<" Act:"<<e.m_nAct<<" Mods:"<<e.m_nMods<<std::endl;
+}
+
+void Window::mouseMoveEvent(MouseMoveEvent& e)
+{
+    if((int)e.m_dX % 100 == 0)
+        std::cout<<"MouseMove:  X:"<<e.m_dX<<" Y:"<<e.m_dY<<std::endl;
 }

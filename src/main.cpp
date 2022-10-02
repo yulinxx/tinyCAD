@@ -1,9 +1,9 @@
-#include "window.h"
+#include "Window.h"
 
 /////////////////////////////////////////////////////////////
 int main()
 {
-    window wnd;
+    Window wnd;
 
     const int w = 1200;
     const int h = 800;

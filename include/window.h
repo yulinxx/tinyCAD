@@ -8,6 +8,16 @@
 
 class GLFWwindow;
 
+class ResizeEvent;
+class WindowCloseEvent;
+
+class KeyPressEvent;
+class KeyReleaseEvent;
+class MouseScrolledEvent;
+class MousePressEvent;
+class MouseReleaseEvent;
+class MouseMoveEvent;
+
 // using EventFunc = std::function< void(Event&) >;
 // std::function< void(Event&) > EventFunc = f;
 
@@ -28,11 +38,11 @@ struct WndInfo
 
 //////////////////////////////////////////////////////
 
-class window
+class Window
 {
 public:
-    window() = default;
-    ~window();
+    Window() = default;
+    ~Window();
 
 public:
     bool initWnd(int w, int h, std::string& strName);
@@ -41,6 +51,17 @@ public:
 
     bool run();
     
+private:
+    void resizeEvent(ResizeEvent& e);
+    void closeEvent(WindowCloseEvent& e);
+
+    void keyPressEvent(KeyPressEvent& e);
+    void keyReleaseEvent(KeyReleaseEvent& e);
+    void mouseScroolEvent(MouseScrolledEvent& e);
+    void mousePressEvent(MousePressEvent& e);
+    void mouseReleaseEvent(MouseReleaseEvent& e);
+    void mouseMoveEvent(MouseMoveEvent& e);
+
 private:
     GLFWwindow* m_pWnd = nullptr;
 

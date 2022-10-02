@@ -12,7 +12,7 @@ public:
     
 public:
 
-private:
+// private:
     int m_nKey = 0;
     int m_nScancode = 0;
     int m_nAction = 0;
@@ -30,7 +30,7 @@ public:
     
 public:
 
-private:
+// private:
     int m_nKey = 0;
     int m_nScancode = 0;
     int m_nAction = 0;

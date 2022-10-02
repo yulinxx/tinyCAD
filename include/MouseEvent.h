@@ -10,7 +10,7 @@ public:
     MouseMoveEvent(double x, double y);
     virtual ~ MouseMoveEvent() = default;
 
-private:
+// private:
     double m_dX = 0.0;
     double m_dY = 0.0;
 
@@ -27,7 +27,7 @@ public:
 
 public:
 
-private:
+// private:
     double m_dXOffset = 0.0;
     double m_dYOffset = 0.0;
 
@@ -44,7 +44,7 @@ public:
 
 public:
 
-private:
+// private:
     int m_nBtn = 0;
     int m_nAct = 0;
     int m_nMods = 0;
@@ -59,7 +59,7 @@ public:
 
 public:
 
-private:
+// private:
     int m_nBtn = 0;
     int m_nAct = 0;
     int m_nMods = 0;
