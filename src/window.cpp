@@ -9,7 +9,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 #include <iostream>
 #include <random>
 #include <functional>
@@ -22,8 +21,12 @@
 #include "WindowEvent.h"
 #include "LineItem.h"
 
+#include "Camera.h"
+
 Window::~Window()
 {
+    SAFE_DELETE(m_pCamera);
+
     for(auto& item : m_vecItems)
         SAFE_DELETE(item);
 
@@ -33,6 +36,7 @@ Window::~Window()
 
 bool Window::initWnd(int w, int h, std::string& strName)
 {
+    m_pCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f)); 
     m_nWndW = w;
     m_nWndH = h;
 
@@ -147,23 +151,23 @@ bool Window::initWnd(int w, int h, std::string& strName)
 bool Window::run()
 {
     // timing
-    // float deltaTime = 0.0f;
     float lastFrame = 0.0f;
-
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), GLfloat(m_nWndW / m_nWndH), 0.1f, 100.0f);
 
     // render loop
     while (!glfwWindowShouldClose(m_pWnd))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
+        m_dDeltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        // std::cout<<deltaTime<<std::endl;
+        // std::cout<<m_dDeltaTime<<std::endl;
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glm::mat4 projection = glm::perspective(glm::radians(m_pCamera->m_dZoom), (float)m_nWndW / (float)m_nWndH, 0.1f, 100.0f);
+        glm::mat4 view = m_pCamera->GetViewMatrix();
 
         for (const auto &item : m_vecItems)
         { 
@@ -171,8 +175,6 @@ bool Window::run()
 
             LineItem *lineItem = static_cast<LineItem *>(item);
             lineItem->m_pShader->setMat4("projection", projection);
-
-            glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
             lineItem->m_pShader->setMat4("view", view);
             
             glBindVertexArray(item->m_nVAO);
@@ -191,7 +193,6 @@ bool Window::run()
     return true;
 }
 
-
 void Window::resizeEvent(ResizeEvent& e)
 {
     glViewport(0, 0, e.m_nW, e.m_nH);
@@ -205,16 +206,18 @@ void Window::closeEvent(WindowCloseEvent& e)
 void Window::keyPressEvent(KeyPressEvent& e)
 {
     // float cameraSpeed = 0.05f; 
-    float cameraSpeed = static_cast<float>(2.5 * deltaTime);
+    float cameraSpeed = static_cast<float>(2.5 * m_dDeltaTime);
     if (e.m_nKey == GLFW_KEY_W)
     {
         std::cout << "Key W" << std::endl;
-        cameraPos += cameraSpeed * cameraFront;
+        // cameraPos += cameraSpeed * cameraFront;
+        m_pCamera->ProcessKeyboard(Camera_Movement::FORWARD, m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_S)
     {
         std::cout << "Key S" << std::endl;
-        cameraPos -= cameraSpeed * cameraFront;
+        // cameraPos -= cameraSpeed * cameraFront;
+        m_pCamera->ProcessKeyboard(Camera_Movement::BACKWARD, m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_N)
     {
@@ -223,12 +226,14 @@ void Window::keyPressEvent(KeyPressEvent& e)
     else if (e.m_nKey == GLFW_KEY_A)
     {
         std::cout << "Key A" << std::endl;
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        // cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        m_pCamera->ProcessKeyboard(Camera_Movement::LEFT, m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_D)
     {
         std::cout << "Key D" << std::endl;
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        // cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        m_pCamera->ProcessKeyboard(Camera_Movement::RIGHT, m_dDeltaTime);
     }
     else if(e.m_nKey == GLFW_KEY_ESCAPE)
     {

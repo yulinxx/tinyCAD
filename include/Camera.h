@@ -29,6 +29,15 @@ const float ZOOM        =  45.0f;
 class Camera
 {
 public:
+Camera::Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), 
+        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), 
+        float yaw = YAW, 
+        float pitch = PITCH) ;
+
+Camera::Camera(float posX, float posY, float posZ, 
+        float upX, float upY, float upZ, 
+        float yaw, float pitch);
+
     // camera Attributes
     glm::vec3 m_v3Position;
     glm::vec3 m_v3Front;
@@ -45,12 +54,12 @@ public:
     float m_dMouseSensitivity = 0.0f;
     float m_dZoom = 0.0f;
 
-    // constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), 
-        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+    // // constructor with vectors
+    // Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), 
+    //     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
 
-    // constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
+    // // constructor with scalar values
+    // Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix();
