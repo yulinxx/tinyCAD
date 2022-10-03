@@ -147,8 +147,10 @@ bool Window::initWnd(int w, int h, std::string& strName)
 bool Window::run()
 {
     // timing
-    float deltaTime = 0.0f;
+    // float deltaTime = 0.0f;
     float lastFrame = 0.0f;
+
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), GLfloat(m_nWndW / m_nWndH), 0.1f, 100.0f);
 
     // render loop
     while (!glfwWindowShouldClose(m_pWnd))
@@ -163,42 +165,25 @@ bool Window::run()
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (m_bAnimaltion)
-        {
-            for (const auto &item : m_vecItems)
-            {
-                glm::mat4 projection = glm::perspective(glm::radians(45.0f), GLfloat(m_nWndW / m_nWndH), 0.1f, 100.0f);
-                item->m_pShader->use();
+        for (const auto &item : m_vecItems)
+        { 
+            item->m_pShader->use();
 
-                LineItem *lineItem = static_cast<LineItem *>(item);
-                lineItem->m_pShader->setMat4("projection", projection);
+            LineItem *lineItem = static_cast<LineItem *>(item);
+            lineItem->m_pShader->setMat4("projection", projection);
 
-                float radius = 10.0f;
-                float camX = static_cast<float>(sin(glfwGetTime()) * radius);
-                float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
-                glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                lineItem->m_pShader->setMat4("view", view);
-
-                glBindVertexArray(item->m_nVAO);
-                glm::mat4 model = glm::mat4(1.0f);
-                for (int i = 0; i < lineItem->m_pts.size(); i++)
-                {
-                    model = glm::translate(model, glm::vec3(lineItem->m_pts[i].x, lineItem->m_pts[i].y, lineItem->m_pts[i].z));
-
-                    float angle = 20.0f * i;
-                    model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-                    lineItem->m_pShader->setMat4("model", model);
-                }
-                glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineItem->m_pts.size()));
-            } // for
+            glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+            lineItem->m_pShader->setMat4("view", view);
+            
+            glBindVertexArray(item->m_nVAO);
+            glm::mat4 model = glm::mat4(1.0f);
+            
+            for (int i = 0; i < lineItem->m_pts.size(); i++)
+                lineItem->m_pShader->setMat4("model", model);
+                
+            glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineItem->m_pts.size()));
         }
-        else
-        {
-           for (const auto &item : m_vecItems)
-            { 
-                item->render();
-            }
-        }
+
         glfwSwapBuffers(m_pWnd);
         glfwPollEvents();
     } // while
@@ -219,13 +204,17 @@ void Window::closeEvent(WindowCloseEvent& e)
 
 void Window::keyPressEvent(KeyPressEvent& e)
 {
+    // float cameraSpeed = 0.05f; 
+    float cameraSpeed = static_cast<float>(2.5 * deltaTime);
     if (e.m_nKey == GLFW_KEY_W)
     {
         std::cout << "Key W" << std::endl;
+        cameraPos += cameraSpeed * cameraFront;
     }
     else if (e.m_nKey == GLFW_KEY_S)
     {
         std::cout << "Key S" << std::endl;
+        cameraPos -= cameraSpeed * cameraFront;
     }
     else if (e.m_nKey == GLFW_KEY_N)
     {
@@ -233,12 +222,16 @@ void Window::keyPressEvent(KeyPressEvent& e)
     }
     else if (e.m_nKey == GLFW_KEY_A)
     {
-        m_bAnimaltion = true;
-        std::cout << "Key N" << std::endl;
+        std::cout << "Key A" << std::endl;
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
+    else if (e.m_nKey == GLFW_KEY_D)
+    {
+        std::cout << "Key D" << std::endl;
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     }
     else if(e.m_nKey == GLFW_KEY_ESCAPE)
     {
-        m_bAnimaltion = false;
         if(m_bNewItem)
             m_vecItems.emplace_back(m_pNewItem);
 
