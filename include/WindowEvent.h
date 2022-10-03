@@ -11,7 +11,8 @@ public:
     ResizeEvent(int w, int h);
     virtual ~ResizeEvent() = default;
 
-private:
+public:
+// private:
     int m_nW = 0;
     int m_nH = 0;
 

@@ -170,7 +170,7 @@ bool Window::run()
 
 void Window::resizeEvent(ResizeEvent& e)
 {
-
+    glViewport(0, 0, e.m_nW, e.m_nH);
 }
 
 void Window::closeEvent(WindowCloseEvent& e)
