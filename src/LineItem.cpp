@@ -25,6 +25,11 @@ LineItem::LineItem()
 void LineItem::render()
 {
     m_pShader->use();
+
+    m_pShader->setMat4("projection", glm::mat4(1.0f));
+    m_pShader->setMat4("view", glm::mat4(1.0f));
+    m_pShader->setMat4("model", glm::mat4(1.0f));
+
     glBindVertexArray(m_nVAO);
     glDrawArrays(GL_LINE_STRIP, 0, GLsizei(m_pts.size()));
 }

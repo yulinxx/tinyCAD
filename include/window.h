@@ -9,6 +9,12 @@
 
 #include "Shader.h"
 
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
 class GLFWwindow;
 class Item;
 
@@ -49,6 +55,9 @@ private:
     void mouseMoveEvent(MouseMoveEvent& e);
 
 private:
+    int m_nWndW = 800;
+    int m_nWndH = 600;
+
     GLFWwindow* m_pWnd = nullptr;
 
    std::vector<Item*> m_vecItems; 
@@ -57,6 +66,8 @@ private:
     Item* m_pNewItem = nullptr;
 
     Pt      m_pt;
+
+    bool m_bAnimaltion = false;
 };
 
 #endif //_WINDOW_H_

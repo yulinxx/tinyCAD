@@ -31,6 +31,9 @@ public:
 
     unsigned int m_nVAO = -1;
     unsigned int m_nVBO = -1;
+
+    
+
 };
 
 #endif // _ITEM_H

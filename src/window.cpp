@@ -4,6 +4,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
 #include <iostream>
 #include <random>
 #include <functional>
@@ -27,6 +33,9 @@ Window::~Window()
 
 bool Window::initWnd(int w, int h, std::string& strName)
 {
+    m_nWndW = w;
+    m_nWndH = h;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -36,7 +45,7 @@ bool Window::initWnd(int w, int h, std::string& strName)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    m_pWnd = glfwCreateWindow(w, h, strName.c_str(), nullptr, nullptr);
+    m_pWnd = glfwCreateWindow(m_nWndW, m_nWndH, strName.c_str(), nullptr, nullptr);
     if (m_pWnd == nullptr)
     {
         std::cout << "Failed to create GLFW Window" << std::endl;
@@ -135,7 +144,6 @@ bool Window::initWnd(int w, int h, std::string& strName)
     return true;
 }
 
-
 bool Window::run()
 {
     // timing
@@ -155,14 +163,45 @@ bool Window::run()
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for(const auto& item : m_vecItems)
+        if (m_bAnimaltion)
         {
-            item->render();
-        }
+            for (const auto &item : m_vecItems)
+            {
+                glm::mat4 projection = glm::perspective(glm::radians(45.0f), GLfloat(m_nWndW / m_nWndH), 0.1f, 100.0f);
+                item->m_pShader->use();
 
+                LineItem *lineItem = static_cast<LineItem *>(item);
+                lineItem->m_pShader->setMat4("projection", projection);
+
+                float radius = 10.0f;
+                float camX = static_cast<float>(sin(glfwGetTime()) * radius);
+                float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
+                glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                lineItem->m_pShader->setMat4("view", view);
+
+                glBindVertexArray(item->m_nVAO);
+                glm::mat4 model = glm::mat4(1.0f);
+                for (int i = 0; i < lineItem->m_pts.size(); i++)
+                {
+                    model = glm::translate(model, glm::vec3(lineItem->m_pts[i].x, lineItem->m_pts[i].y, lineItem->m_pts[i].z));
+
+                    float angle = 20.0f * i;
+                    model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                    lineItem->m_pShader->setMat4("model", model);
+                }
+                glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineItem->m_pts.size()));
+            } // for
+        }
+        else
+        {
+           for (const auto &item : m_vecItems)
+            { 
+                item->render();
+            }
+        }
         glfwSwapBuffers(m_pWnd);
         glfwPollEvents();
-    }
+    } // while
 
     return true;
 }
@@ -191,10 +230,15 @@ void Window::keyPressEvent(KeyPressEvent& e)
     else if (e.m_nKey == GLFW_KEY_N)
     {
         std::cout << "Key N" << std::endl;
-        
+    }
+    else if (e.m_nKey == GLFW_KEY_A)
+    {
+        m_bAnimaltion = true;
+        std::cout << "Key N" << std::endl;
     }
     else if(e.m_nKey == GLFW_KEY_ESCAPE)
     {
+        m_bAnimaltion = false;
         if(m_bNewItem)
             m_vecItems.emplace_back(m_pNewItem);
 
