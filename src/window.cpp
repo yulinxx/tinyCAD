@@ -23,12 +23,17 @@
 
 #include "Camera.h"
 
+#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=nullptr; } }
+#define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=nullptr; } }
+#define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=nullptr; } }
+
+
 Window::~Window()
 {
-    SAFE_DELETE(m_pCamera);
-
     for(auto& item : m_vecItems)
         SAFE_DELETE(item);
+
+    SAFE_DELETE(m_pCamera);
 
     glfwDestroyWindow(m_pWnd);
     glfwTerminate();
@@ -171,19 +176,14 @@ bool Window::run()
 
         for (const auto &item : m_vecItems)
         { 
-            item->m_pShader->use();
+            // item->m_pShader->use();
 
-            LineItem *lineItem = static_cast<LineItem *>(item);
-            lineItem->m_pShader->setMat4("projection", projection);
-            lineItem->m_pShader->setMat4("view", view);
-            
-            glBindVertexArray(item->m_nVAO);
-            glm::mat4 model = glm::mat4(1.0f);
-            
-            for (int i = 0; i < lineItem->m_pts.size(); i++)
-                lineItem->m_pShader->setMat4("model", model);
-                
-            glDrawArrays(GL_LINE_STRIP, 0, GLsizei(lineItem->m_pts.size()));
+            LineItem *pItem = static_cast<LineItem *>(item);
+            pItem->matProj = projection;
+            pItem->matView = view;
+            pItem->matModel = glm::mat4(1.0f);
+
+            pItem->render();
         }
 
         glfwSwapBuffers(m_pWnd);
