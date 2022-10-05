@@ -41,7 +41,8 @@ Window::~Window()
 
 bool Window::initWnd(int w, int h, std::string& strName)
 {
-    m_pCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f)); 
+    // m_pCamera = new Camera(glm::vec3(0.0, 0.0, 81.0));
+    m_pCamera = new Camera(glm::vec3(0.0, 0.0, 965.8));
     m_nWndW = w;
     m_nWndH = h;
 
@@ -171,13 +172,12 @@ bool Window::run()
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 projection = glm::perspective(glm::radians(m_pCamera->m_dZoom), (float)m_nWndW / (float)m_nWndH, 0.1f, 100.0f);
-        glm::mat4 view = m_pCamera->GetViewMatrix();
+        glm::mat4& projection = glm::perspective(glm::radians(m_pCamera->m_dZoom), 
+                    (float)m_nWndW / (float)m_nWndH, 0.1f, 9000.0f);
+        glm::mat4& view = m_pCamera->GetViewMatrix();
 
         for (const auto &item : m_vecItems)
         { 
-            // item->m_pShader->use();
-
             LineItem *pItem = static_cast<LineItem *>(item);
             pItem->matProj = projection;
             pItem->matView = view;
@@ -200,7 +200,7 @@ void Window::resizeEvent(ResizeEvent& e)
 
 void Window::closeEvent(WindowCloseEvent& e)
 {
-
+    glfwTerminate();
 }
 
 void Window::keyPressEvent(KeyPressEvent& e)
@@ -275,17 +275,21 @@ void Window::mousePressEvent(MousePressEvent& e)
                 m_bNewItem = true;
                 m_pNewItem = new LineItem();
                 m_vecItems.emplace_back(m_pNewItem);
-                
-                m_pNewItem->addPt( Pt(m_pt.x * 2 / 1200 - 1, -1 * (m_pt.y * 2 / 800 - 1)) );
+
+                m_pNewItem->addPt( Pt(-m_nWndW / 2, - m_nWndH / 2) ); 
+                m_pNewItem->addPt( Pt(m_nWndW / 2,  -m_nWndH / 2 ) ); 
+                m_pNewItem->addPt( Pt(m_nWndW / 2 ,  m_nWndH / 2) ); 
+                m_pNewItem->addPt( Pt(-m_nWndW / 2, m_nWndH / 2) ); 
+                m_pNewItem->addPt( Pt(-m_nWndW / 2, - m_nWndH / 2) ); 
             }
-            else
-            {
-                m_pNewItem->addPt( Pt(m_pt.x * 2 / 1200 - 1, -1 * (m_pt.y * 2 / 800 - 1)) ); 
-            }
+            // m_pNewItem->addPt( Pt(m_pt.x * 2 / 1200 - 1, -1 * (m_pt.y * 2 / 800 - 1)) ); 
+            // m_pNewItem->addPt( Pt(m_pt.x / 60 , -1 * m_pt.y / 40) ); 
+            m_pNewItem->addPt( Pt(m_pt.x - m_nWndW / 2 , -1 * m_pt.y + m_nWndH / 2) ); 
             
-            std::cout<<" X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1); 
-        }
-        break;
+            
+            std::cout<<" X: "<<m_pt.x<<" / "<<(m_pt.x - m_nWndW / 2)<<std::endl
+                     <<" Y: "<<m_pt.y<<" / "<<( -m_pt.y + m_nWndH / 2 )<<std::endl;
+        }        break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
         std::cout<<"Middle"<<" X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1);
         break;

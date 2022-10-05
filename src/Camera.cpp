@@ -1,10 +1,14 @@
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 0.0f)*/, 
+#include <iostream>
+
+
+Camera::Camera(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 3.0f)*/, 
         glm::vec3 up /*= glm::vec3(0.0f, 1.0f, 0.0f)*/, 
         float yaw /*= YAW*/, 
         float pitch /*= PITCH*/) 
-    : m_v3Front(glm::vec3(0.0f, 0.0f, -1.0f)), m_dMoveSpeed(SPEED), m_dMouseSensitivity(SENSITIVITY), m_dZoom(ZOOM)
+    : m_v3Front(glm::vec3(0.0f, 0.0f, -1.0f)), m_dMoveSpeed(SPEED), 
+    m_dMouseSensitivity(SENSITIVITY), m_dZoom(ZOOM)
 {
     m_v3Position = position;
     m_v3WorldUp = up;
@@ -13,8 +17,10 @@ Camera::Camera(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 0.0f)*/,
     updateCameraVectors();
 }
 
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
-    : m_v3Front(glm::vec3(0.0f, 0.0f, -1.0f)), m_dMoveSpeed(SPEED), m_dMouseSensitivity(SENSITIVITY), m_dZoom(ZOOM)
+Camera::Camera(float posX, float posY, float posZ, float upX, 
+            float upY, float upZ, float yaw, float pitch)
+    : m_v3Front(glm::vec3(0.0f, 0.0f, -1.0f)), m_dMoveSpeed(SPEED), 
+    m_dMouseSensitivity(SENSITIVITY), m_dZoom(ZOOM)
 {
     m_v3Position = glm::vec3(posX, posY, posZ);
     m_v3WorldUp = glm::vec3(upX, upY, upZ);
@@ -31,6 +37,7 @@ glm::mat4 Camera::GetViewMatrix()
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     float velocity = m_dMoveSpeed * deltaTime;
+    velocity = 2;
     if (direction == FORWARD)
         m_v3Position += m_v3Front * velocity;
     if (direction == BACKWARD)
@@ -39,6 +46,8 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
         m_v3Position -= m_v3Right * velocity;
     if (direction == RIGHT)
         m_v3Position += m_v3Right * velocity;
+
+    std::cout<<m_v3Position.x<<" "<<m_v3Position.y<<" "<<m_v3Position.z<<std::endl;
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch /*= true*/)
