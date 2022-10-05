@@ -11,6 +11,7 @@ Camera::Camera(glm::vec3 position /*= glm::vec3(0.0f, 0.0f, 3.0f)*/,
     m_dMouseSensitivity(SENSITIVITY), m_dZoom(ZOOM)
 {
     m_v3Position = position;
+    m_v3PositionOri = m_v3Position;
     m_v3WorldUp = up;
     m_dYaw = yaw;
     m_dPitch = pitch;
@@ -37,7 +38,6 @@ glm::mat4 Camera::GetViewMatrix()
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     float velocity = m_dMoveSpeed * deltaTime;
-    velocity = 2;
     if (direction == FORWARD)
         m_v3Position += m_v3Front * velocity;
     if (direction == BACKWARD)

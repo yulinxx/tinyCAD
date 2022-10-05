@@ -10,7 +10,7 @@ class LineItem : public Item
 {
 public:
     LineItem();
-    virtual ~LineItem() = default;
+    virtual ~LineItem();
 
 public:
     // virtual void update() override;

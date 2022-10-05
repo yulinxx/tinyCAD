@@ -19,7 +19,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
-const float SPEED       =  2.5f;
+const float SPEED       =  100.0f;
 const float SENSITIVITY =  0.1f;
 const float ZOOM        =  45.0f;
 
@@ -29,12 +29,14 @@ const float ZOOM        =  45.0f;
 class Camera
 {
 public:
-Camera::Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), 
+    // constructor with vectors
+    Camera::Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), 
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), 
         float yaw = YAW, 
         float pitch = PITCH) ;
 
-Camera::Camera(float posX, float posY, float posZ, 
+    // constructor with scalar values
+    Camera::Camera(float posX, float posY, float posZ, 
         float upX, float upY, float upZ, 
         float yaw, float pitch);
 
@@ -45,6 +47,8 @@ Camera::Camera(float posX, float posY, float posZ,
     glm::vec3 m_v3Right;
     glm::vec3 m_v3WorldUp;
 
+    glm::vec3 m_v3PositionOri; // 保存原始位置,用于和现在位置进行对比偏移
+
     // euler Angles
     float m_dYaw = 0.0f;
     float m_dPitch = 0.0f;
@@ -54,12 +58,6 @@ Camera::Camera(float posX, float posY, float posZ,
     float m_dMouseSensitivity = 0.0f;
     float m_dZoom = 0.0f;
 
-    // // constructor with vectors
-    // Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), 
-    //     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
-
-    // // constructor with scalar values
-    // Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix();
