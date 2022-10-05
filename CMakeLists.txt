@@ -12,8 +12,6 @@ set(CMAKE_CXX_STANDARD 17) # this does nothing for MSVC, use target_compile_opti
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-
-
 if (POLICY CMP0072)
   set(OpenGL_GL_PREFERENCE LEGACY)
 endif()
@@ -24,6 +22,8 @@ include_directories(${INC_DIR})
 
 aux_source_directory(./src EXE_SRC)
 add_executable(tinyCAD ${EXE_SRC})
+
+# add_executable(testGL ./test2/main2.cpp)
 
 ################################################################
 # find_package(OpenGL REQUIRED)
@@ -70,6 +70,7 @@ if(glfw3_FOUND)
     message(STATUS  " -----glfw3_FOUND")
     #target_link_libraries(tinyCAD ${glfw_LIBRARIES})
     target_link_libraries(tinyCAD glfw)
+    # target_link_libraries(testGL glfw)
 endif()
 
 find_package(GLEW REQUIRED)
@@ -77,12 +78,14 @@ if (GLEW_FOUND)
     message(STATUS  " -----GLEW_FOUND")
     #include_directories(${GLEW_INCLUDE_DIRS})
     target_link_libraries(tinyCAD ${GLEW_LIBRARIES})
+    # target_link_libraries(testGL ${GLEW_LIBRARIES})
     # target_link_libraries(tinyCAD PRIVATE GLEW::GLEW)
     # target_link_libraries(tinyCAD PRIVATE glfw)
 endif()
 
 ################################################################
 target_link_libraries(tinyCAD GLAD)
+# target_link_libraries(testGL GLAD)
 
 ################################################################
 if(WIN32)
@@ -138,4 +141,6 @@ create_project_from_sources()
 
 include_directories(${CMAKE_SOURCE_DIR}/includes)
 target_include_directories(tinyCAD PRIVATE ${CMAKE_SOURCE_DIR}/3rd)
+# target_include_directories(testGL PRIVATE ${CMAKE_SOURCE_DIR}/3rd)
 
+add_subdirectory(dashedLine)
