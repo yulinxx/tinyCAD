@@ -13,6 +13,12 @@
 #include <random>
 #include <functional>
 
+// log
+#define GLOG_NO_ABBREVIATED_SEVERITIES
+#include <glog/logging.h>
+#define WRITE_LOG(s) (LOG(INFO)<<s)
+
+
 #include "LineItem.h"
 #include "DataDefine.h"
 
@@ -41,6 +47,14 @@ Window::~Window()
 
 bool Window::initWnd(int w, int h, std::string& strName)
 {
+    // log
+    FLAGS_log_dir = "./";
+	google::SetLogFilenameExtension(".log");
+	google::InitGoogleLogging("glLog");
+	WRITE_LOG("initial opengl");
+
+	google::FlushLogFiles(google::GLOG_INFO);
+
     // m_pCamera = new Camera(glm::vec3(0.0, 0.0, 81.0));
     m_pCamera = new Camera(glm::vec3(0.0, 0.0, 965.8));
     m_nWndW = w;
@@ -168,7 +182,6 @@ bool Window::run()
         // std::cout<<m_dDeltaTime<<std::endl;
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
