@@ -13,12 +13,6 @@
 #include <random>
 #include <functional>
 
-// log
-#define GLOG_NO_ABBREVIATED_SEVERITIES
-#include <glog/logging.h>
-#define WRITE_LOG(s) (LOG(INFO)<<s)
-
-
 #include "LineItem.h"
 #include "DataDefine.h"
 
@@ -28,6 +22,8 @@
 #include "LineItem.h"
 
 #include "Camera.h"
+
+#include "log.h"
 
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=nullptr; } }
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=nullptr; } }
@@ -43,15 +39,21 @@ Window::~Window()
 
     glfwDestroyWindow(m_pWnd);
     glfwTerminate();
+
+    google::ShutdownGoogleLogging();
 }
 
 bool Window::initWnd(int w, int h, std::string& strName)
 {
     // log
-    FLAGS_log_dir = "./";
+    FLAGS_log_dir = "./"; // 日志文件保存目录，这个目录必须是已经存在的
+    FLAGS_max_log_size = 10; //设置最大日志文件大小（以MB为单位）
+    FLAGS_colorlogtostderr = true;  // Set log color
+    FLAGS_stop_logging_if_full_disk = true;  // If disk is full
 	google::SetLogFilenameExtension(".log");
-	google::InitGoogleLogging("glLog");
-	WRITE_LOG("initial opengl");
+    
+	google::InitGoogleLogging(strName.c_str());
+	WRITE_INFOLOG("initial opengl 初始化OpenGL");
 
 	google::FlushLogFiles(google::GLOG_INFO);
 
