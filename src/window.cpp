@@ -290,20 +290,8 @@ void Window::mousePressEvent(MousePressEvent& e)
                 m_bNewItem = true;
                 m_pNewItem = new LineItem();
                 m_vecItems.emplace_back(m_pNewItem);
-
-                // m_pNewItem->addPt( Pt(-m_nWndW / 2, - m_nWndH / 2) ); 
-                // m_pNewItem->addPt( Pt(m_nWndW / 2,  -m_nWndH / 2 ) ); 
-                // m_pNewItem->addPt( Pt(m_nWndW / 2 ,  m_nWndH / 2) ); 
-                // m_pNewItem->addPt( Pt(-m_nWndW / 2, m_nWndH / 2) ); 
-                // m_pNewItem->addPt( Pt(-m_nWndW / 2, - m_nWndH / 2) ); 
             }
-            // m_pNewItem->addPt( Pt(m_pt.x * 2 / 1200 - 1, -1 * (m_pt.y * 2 / 800 - 1)) ); 
-            // m_pNewItem->addPt( Pt(m_pt.x / 60 , -1 * m_pt.y / 40) ); 
-            // m_pNewItem->addPt( Pt(m_pt.x - m_nWndW / 2 , -1 * m_pt.y + m_nWndH / 2) ); 
-
-            // double w = m_pCamera->m_v3Position.z * arctan(22.5 * 3.1415926 / 3.1415926);
-            // m_pNewItem->addPt( Pt(m_pt.x - w / 2 , -1 * m_pt.y + m_nWndH / 2) ); 
-            // double dRadio = m_pCamera->m_v3Position.z / 965.8;
+ 
             double dRadio = m_pCamera->m_v3Position.z / m_pCamera->m_v3PositionOri.z;
             double dV = m_pCamera->m_v3Position.x - m_pCamera->m_v3PositionOri.x;
             double dH = m_pCamera->m_v3Position.y - m_pCamera->m_v3PositionOri.y;

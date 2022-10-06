@@ -22,18 +22,6 @@ LineItemRender::~LineItemRender()
 
 void LineItemRender::render()
 {
-    glBindVertexArray(m_nVAO);  
-    glBindBuffer(GL_ARRAY_BUFFER, m_nVBO);
-    glBufferData(GL_ARRAY_BUFFER, m_pItem->m_pts.size() * sizeof(Pt), &m_pItem->m_pts[0], GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
-
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0); 
-
-
     m_pShader->use();
 
     m_pShader->setMat4("projection", m_pItem->matProj); 
@@ -44,8 +32,20 @@ void LineItemRender::render()
     glDrawArrays(GL_LINE_STRIP, 0, GLsizei(m_pItem->m_pts.size()));
 }
 
+void LineItemRender::updateData()
+{
+    glBindVertexArray(m_nVAO);  
+    glBindBuffer(GL_ARRAY_BUFFER, m_nVBO);
+    glBufferData(GL_ARRAY_BUFFER, m_pItem->m_pts.size() * sizeof(Pt), &m_pItem->m_pts[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
+
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindVertexArray(0); 
+}
+
 void LineItemRender::setColor(glm::vec4& vColor)
 {
    m_pShader->setVec4("color", vColor); 
-    //m_pShader->setVec4("color", vColor.x, vColor.y, vColor.z, vColor.w); 
 }

@@ -13,7 +13,6 @@ public:
     virtual ~LineItem();
 
 public:
-    // virtual void update() override;
     virtual void render() override;
     virtual void addPt(Pt& pt) override;
     virtual void setColor(glm::vec4& vColor) override;
