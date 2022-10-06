@@ -1,3 +1,6 @@
+#ifndef _TINYCAD_LOG_H_
+#define _TINYCAD_LOG_H_
+
 // log
 // #define GLOG_NO_ABBREVIATED_SEVERITIES
 #include <glog/logging.h>
@@ -9,3 +12,5 @@
 
 
 // LOG_IF(INFO, num > 10) << "Got lots of cookies";  //当条件满足时输出日志
+
+#endif // _TINYCAD_LOG_H_
