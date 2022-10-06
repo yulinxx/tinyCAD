@@ -14,6 +14,7 @@ public:
 
 public:
     virtual void render() override;
+    virtual void setColor(glm::vec4& vColor) override;
 
 public:
     // void setData(LinePts* pts);

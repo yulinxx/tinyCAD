@@ -52,9 +52,19 @@ void LineItem::render()
 void LineItem::addPt(Pt& pt)
 {
     m_pts.emplace_back(pt);
+
+    if(m_pts.size() % 2)
+        setColor(glm::vec4(1.0f, 0.5f, 0.2f, 1.0f));
+    else
+        setColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
     // update();
     // renderObj.setData(&m_pts);
     // renderObj.render();
+}
+
+void LineItem::setColor(glm::vec4& vColor)
+{
+    m_pRender->setColor(vColor);
 }
 
 // void LineItem::setMat()

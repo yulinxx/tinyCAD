@@ -20,6 +20,8 @@ public:
 public:
     virtual void render() = 0;
 
+    virtual void setColor(glm::vec4& vColor) = 0;
+
     Shader* m_pShader = nullptr;
     unsigned int m_nShaderID = -1;
 

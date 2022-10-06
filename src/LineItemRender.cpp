@@ -43,3 +43,9 @@ void LineItemRender::render()
     glBindVertexArray(m_nVAO);
     glDrawArrays(GL_LINE_STRIP, 0, GLsizei(m_pItem->m_pts.size()));
 }
+
+void LineItemRender::setColor(glm::vec4& vColor)
+{
+   m_pShader->setVec4("color", vColor); 
+    //m_pShader->setVec4("color", vColor.x, vColor.y, vColor.z, vColor.w); 
+}
