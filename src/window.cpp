@@ -24,6 +24,7 @@
 #include "Camera.h"
 
 #include "log.h"
+#include "TreeIndex.h"
 
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=nullptr; } }
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=nullptr; } }
@@ -40,27 +41,31 @@ Window::~Window()
     glfwDestroyWindow(m_pWnd);
     glfwTerminate();
 
-    google::ShutdownGoogleLogging();
+    closeLog();
 }
 
 bool Window::initWnd(int w, int h, std::string& strName)
 {
-    // log
-    FLAGS_log_dir = "./"; // 日志文件保存目录，这个目录必须是已经存在的
-    FLAGS_max_log_size = 10; //设置最大日志文件大小（以MB为单位）
-    FLAGS_colorlogtostderr = true;  // Set log color
-    FLAGS_stop_logging_if_full_disk = true;  // If disk is full
-	google::SetLogFilenameExtension(".log");
-    
-	google::InitGoogleLogging(strName.c_str());
-	WRITE_INFOLOG("initial opengl 初始化OpenGL");
-
-	google::FlushLogFiles(google::GLOG_INFO);
+    initLog(strName);
 
     // m_pCamera = new Camera(glm::vec3(0.0, 0.0, 81.0));
     m_pCamera = new Camera(glm::vec3(0.0, 0.0, 965.8));
     m_nWndW = w;
     m_nWndH = h;
+
+
+    // for(int i = 0; i < 1100; i++)
+    // {
+        WRITE_INFOLOG("WRITE_INFOLOG initial opengl 初始化OpenGL");
+        // LOG(INFO)<<i;
+        WRITE_WARNLOG("WRITE_WARNLOG initial opengl 初始化OpenGL");
+        // WRITE_WARNLOG(i);
+
+        WRITE_ERRORLOG("WRITE_ERRORLOG initial opengl 初始化OpenGL");
+        std::string str = "WRITE_ERRORLOG initial opengl 初始化OpenGL";
+        WRITE_ERRORLOG(str.c_str());
+        // WRITE_FATALLOG("WRITE_FATALLOG initial opengl 初始化OpenGL");
+    // }
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -225,30 +230,40 @@ void Window::keyPressEvent(KeyPressEvent& e)
     if (e.m_nKey == GLFW_KEY_W)
     {
         std::cout << "Key W" << std::endl;
-        // cameraPos += cameraSpeed * cameraFront;
         m_pCamera->ProcessKeyboard(Camera_Movement::FORWARD, m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_S)
     {
         std::cout << "Key S" << std::endl;
-        // cameraPos -= cameraSpeed * cameraFront;
         m_pCamera->ProcessKeyboard(Camera_Movement::BACKWARD, m_dDeltaTime);
-    }
-    else if (e.m_nKey == GLFW_KEY_N)
-    {
-        std::cout << "Key N" << std::endl;
     }
     else if (e.m_nKey == GLFW_KEY_A)
     {
         std::cout << "Key A" << std::endl;
-        // cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         m_pCamera->ProcessKeyboard(Camera_Movement::LEFT, m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_D)
     {
         std::cout << "Key D" << std::endl;
-        // cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         m_pCamera->ProcessKeyboard(Camera_Movement::RIGHT, m_dDeltaTime);
+    }
+    else if (e.m_nKey == GLFW_KEY_M)
+    {
+        std::cout << "Key M" << std::endl;
+    }
+    else if (e.m_nKey == GLFW_KEY_N)
+    {
+        std::cout << "Key N" << std::endl;
+        m_bSel = true;
+
+        if(!m_pTree)
+            m_pTree = new TreeIndex();
+        
+        for(const auto& item : m_vecItems)
+        {
+            LineItem* pLineItem = static_cast<LineItem*>(item);
+            m_pTree->add(pLineItem);
+        }
     }
     else if(e.m_nKey == GLFW_KEY_ESCAPE)
     {
@@ -256,6 +271,7 @@ void Window::keyPressEvent(KeyPressEvent& e)
             m_vecItems.emplace_back(m_pNewItem);
 
         m_bNewItem = false;
+        m_bSel = false;
     }
     std::cout << "Key Press:" << e.m_nKey << " Act:" << e.m_nAction << " Mods:" << e.m_nMods << " Scancode:" << e.m_nScancode << std::endl;
 }
@@ -276,6 +292,7 @@ void Window::keyReleaseEvent(KeyReleaseEvent &e)
 void Window::mouseScroolEvent(MouseScrolledEvent& e)
 {
     std::cout<<"XOffset:"<<e.m_dXOffset<<" YOffset:"<<e.m_dYOffset<<std::endl;
+    m_pCamera->ProcessMouseScroll(static_cast<float>(e.m_dYOffset));
 }
 
 void Window::mousePressEvent(MousePressEvent& e)
@@ -283,7 +300,6 @@ void Window::mousePressEvent(MousePressEvent& e)
     switch (e.m_nBtn)
     {
     case GLFW_MOUSE_BUTTON_LEFT:
-        std::cout<<"Left"<<std::endl;
         {
             if(!m_pNewItem)
             {
@@ -291,26 +307,21 @@ void Window::mousePressEvent(MousePressEvent& e)
                 m_pNewItem = new LineItem();
                 m_vecItems.emplace_back(m_pNewItem);
             }
- 
-            double dRadio = m_pCamera->m_v3Position.z / m_pCamera->m_v3PositionOri.z;
-            double dV = m_pCamera->m_v3Position.x - m_pCamera->m_v3PositionOri.x;
-            double dH = m_pCamera->m_v3Position.y - m_pCamera->m_v3PositionOri.y;
-
-            m_pNewItem->addPt( Pt(m_pt.x * dRadio - m_nWndW* dRadio  / 2 + dV, 
-                            -1 * m_pt.y * dRadio + m_nWndH* dRadio / 2 - dH) ); 
+            m_pNewItem->addPt( screen2GLPt(m_pt) ); 
             
-            std::cout<<" X: "<<m_pt.x<<" / "<<(m_pt.x - m_nWndW / 2)<<std::endl
+            std::cout<<" Left X: "<<m_pt.x<<" / "<<(m_pt.x - m_nWndW / 2)<<std::endl
                      <<" Y: "<<m_pt.y<<" / "<<( -m_pt.y + m_nWndH / 2 )<<std::endl;
         }        
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
         m_pCamera->m_v3Position = glm::vec3(glm::vec3(0.0, 0.0, 1931.6));
-        std::cout<<"Middle"<<" X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1);
+        std::cout<<"Middle X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1);
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
         m_bNewItem = false;
-        
         m_pNewItem = nullptr;
+        if(m_bSel)
+            m_ptSelFirst = screen2GLPt(m_pt);
 
         std::cout<<"Right"<<std::endl;
         break;
@@ -319,7 +330,7 @@ void Window::mousePressEvent(MousePressEvent& e)
         return;
     }
 
-    std::cout<<"Mouse Press Btn"<<e.m_nBtn<<" Act:"<<e.m_nAct<<" Mods:"<<e.m_nMods<<std::endl;
+    // std::cout<<"Mouse Press Btn"<<e.m_nBtn<<" Act:"<<e.m_nAct<<" Mods:"<<e.m_nMods<<std::endl;
 }
 
 void Window::mouseReleaseEvent(MouseReleaseEvent& e)
@@ -327,27 +338,56 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
     switch (e.m_nBtn)
     {
     case GLFW_MOUSE_BUTTON_LEFT:
-        std::cout<<"Left"<<std::endl;
+        std::cout << "Left" << std::endl;
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
-        std::cout<<"Middle"<<std::endl;
+        std::cout << "Middle" << std::endl;
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
-        std::cout<<"Right"<<std::endl;
-        break;
-    default:
-        std::cout<<"Default:"<<std::endl;
-        return;
+    {
+        std::cout << "Right" << std::endl;
+
+        Pt pt = screen2GLPt(m_pt);
+        if (m_bSel && m_pTree->selTest(m_ptSelFirst, pt))
+        {
+            std::default_random_engine e(time(0));
+            for (const auto &item : m_vecItems)
+            {
+                std::uniform_real_distribution<double> u(0, 1);
+
+                LineItem *pLineItem = static_cast<LineItem *>(item);
+                glm::vec4 vColor = glm::vec4(u(e), u(e), u(e), 1.0);
+                pLineItem->setColor(vColor);
+                std::cout << vColor.x << "t" << vColor.y << "\t" << vColor.z << std::endl;
+                pLineItem->render();
+            }
+            m_bSel = false;
+        }
     }
-    std::cout<<"Mouse Release Btn"<<e.m_nBtn<<" Act:"<<e.m_nAct<<" Mods:"<<e.m_nMods<<std::endl;
+    break;
+    default:
+        std::cout << "Default:" << std::endl;
+        break;
+    }
+    // std::cout<<"Mouse Release Btn"<<e.m_nBtn<<" Act:"<<e.m_nAct<<" Mods:"<<e.m_nMods<<std::endl;
 }
 
 void Window::mouseMoveEvent(MouseMoveEvent& e)
 {
-    if((int)e.m_dX % 100 == 0)
-        std::cout<<"MouseMove:  X:"<<e.m_dX<<" Y:"<<e.m_dY<<std::endl;
+    // if((int)e.m_dX % 100 == 0)
+    //     std::cout<<"MouseMove:  X:"<<e.m_dX<<" Y:"<<e.m_dY<<std::endl;
 
     m_pt.x = e.m_dX;
     m_pt.y = e.m_dY;
     m_pt.z = 0.0;
+}
+
+
+Pt Window::screen2GLPt(Pt& ptS)
+{
+    double dRadio = m_pCamera->m_v3Position.z / m_pCamera->m_v3PositionOri.z;
+    double dV = m_pCamera->m_v3Position.x - m_pCamera->m_v3PositionOri.x;
+    double dH = m_pCamera->m_v3Position.y - m_pCamera->m_v3PositionOri.y;
+    return Pt(ptS.x * dRadio - m_nWndW* dRadio  / 2 + dV, 
+                    -1 * ptS.y * dRadio + m_nWndH* dRadio / 2 - dH);
 }

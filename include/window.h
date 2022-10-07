@@ -29,6 +29,7 @@ class MouseReleaseEvent;
 class MouseMoveEvent;
 
 class Camera;
+class TreeIndex;
 
 //////////////////////////////////////////////////////
 
@@ -56,6 +57,8 @@ private:
     void mouseReleaseEvent(MouseReleaseEvent& e);
     void mouseMoveEvent(MouseMoveEvent& e);
 
+    Pt screen2GLPt(Pt& ptS); // 屏幕坐标转OpenGL坐标
+
 private:
     int m_nWndW = 800;
     int m_nWndH = 600;
@@ -69,9 +72,15 @@ private:
 
     Pt      m_pt;
 
+    Pt      m_ptSelFirst; // 框选图形,记录框选的第一点
+
     float m_dDeltaTime = 0.0f;
 
     Camera* m_pCamera = nullptr;
+
+    TreeIndex* m_pTree = nullptr;
+
+    bool m_bSel = false;
 };
 
 #endif //_WINDOW_H_
