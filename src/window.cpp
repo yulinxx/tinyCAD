@@ -14,12 +14,13 @@
 #include <functional>
 
 #include "LineItem.h"
+#include "RectSelItem.h"
+
 #include "DataDefine.h"
 
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #include "WindowEvent.h"
-#include "LineItem.h"
 
 #include "Camera.h"
 
@@ -196,12 +197,21 @@ bool Window::run()
 
         for (const auto &item : m_vecItems)
         { 
-            LineItem *pItem = static_cast<LineItem *>(item);
-            pItem->matProj = projection;
-            pItem->matView = view;
-            pItem->matModel = glm::mat4(1.0f);
+            // LineItem *pItem = static_cast<LineItem *>(item);
+            item->matProj = projection;
+            item->matView = view;
+            item->matModel = glm::mat4(1.0f);
 
-            pItem->render();
+            item->render();
+        }
+
+        if(m_pSelItem)
+        {
+            m_pSelItem->matProj = projection;
+            m_pSelItem->matView = view;
+            m_pSelItem->matModel = glm::mat4(1.0f);
+
+            m_pSelItem->render();
         }
 
         glfwSwapBuffers(m_pWnd);
@@ -296,19 +306,33 @@ void Window::mousePressEvent(MousePressEvent& e)
             }
             m_pNewItem->addPt( screen2GLPt(m_pt) ); 
             
-            std::cout<<" Left X: "<<m_pt.x<<" / "<<(m_pt.x - m_nWndW / 2)<<std::endl
+            std::cout<<" Left X: "<<m_pt.x<<" / "<<(m_pt.x - m_nWndW / 2)<< " \t"
                      <<" Y: "<<m_pt.y<<" / "<<( -m_pt.y + m_nWndH / 2 )<<std::endl;
         }        
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
         m_ptFirst = screen2GLPt(m_pt); 
+        
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
         {
             m_bNewItem = false;
             m_pNewItem = nullptr;
+
+            m_bSel = true;
             if(m_bSel)
                 m_ptFirst = screen2GLPt(m_pt);
+
+            // SAFE_DELETE(m_pNewItem);
+            if(!m_pSelItem)
+            {
+                std::cout<<"new RectSelItem"<<std::endl;
+                m_pSelItem = new RectSelItem();
+            }
+
+            m_pSelItem->addPt(m_ptFirst);
+            // m_pNewItem->addPt(m_ptFirst);
+            
         }
         break;
     default:
@@ -321,7 +345,6 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
     switch (e.m_nBtn)
     {
     case GLFW_MOUSE_BUTTON_LEFT:
-        std::cout << "Left" << std::endl;
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
         std::cout << "Middle" << std::endl;
@@ -331,15 +354,15 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
             double dYMove = m_ptFirst.y - pt.y;
             m_pCamera->m_v3Position.x += (int)dXMove;
             m_pCamera->m_v3Position.y += (int)dYMove;
-
         }
+        m_bSel = false;
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
     {
         std::cout << "Right" << std::endl;
 
         Pt pt = screen2GLPt(m_pt);
-        if (m_bSel && m_pTree->selTest(m_ptFirst, pt))
+        if (m_bSel && m_pTree && m_pTree->selTest(m_ptFirst, pt))
         {
             std::default_random_engine e((unsigned int)time(0));
             for (const auto &item : m_vecItems)
@@ -354,6 +377,8 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
             }
             // m_bSel = false;
         }
+        m_pSelItem->clear();
+        m_bSel = false;
     }
     break;
     default:
@@ -367,6 +392,13 @@ void Window::mouseMoveEvent(MouseMoveEvent& e)
     m_pt.x = e.m_dX;
     m_pt.y = e.m_dY;
     m_pt.z = 0.0;
+    
+    if(m_bSel)
+    {
+        std::cout<<"render RectSelItem"<<std::endl;
+        m_pSelItem->addPt(screen2GLPt(m_pt));
+        // m_pNewItem->render();
+    }
 }
 
 
