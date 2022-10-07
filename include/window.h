@@ -72,7 +72,7 @@ private:
 
     Pt      m_pt;
 
-    Pt      m_ptSelFirst; // 框选图形,记录框选的第一点
+    Pt      m_ptFirst; // 记录鼠标的第一点
 
     float m_dDeltaTime = 0.0f;
 

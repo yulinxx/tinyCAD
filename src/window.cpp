@@ -48,7 +48,6 @@ bool Window::initWnd(int w, int h, std::string& strName)
 {
     initLog(strName);
 
-    // m_pCamera = new Camera(glm::vec3(0.0, 0.0, 81.0));
     m_pCamera = new Camera(glm::vec3(0.0, 0.0, 965.8));
     m_nWndW = w;
     m_nWndH = h;
@@ -177,7 +176,6 @@ bool Window::initWnd(int w, int h, std::string& strName)
 
 bool Window::run()
 {
-    // timing
     float lastFrame = 0.0f;
 
     // render loop
@@ -225,35 +223,28 @@ void Window::closeEvent(WindowCloseEvent& e)
 
 void Window::keyPressEvent(KeyPressEvent& e)
 {
-    // float cameraSpeed = 0.05f; 
     float cameraSpeed = static_cast<float>(2.5 * m_dDeltaTime);
     if (e.m_nKey == GLFW_KEY_W)
     {
-        std::cout << "Key W" << std::endl;
         m_pCamera->ProcessKeyboard(Camera_Movement::FORWARD, m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_S)
     {
-        std::cout << "Key S" << std::endl;
         m_pCamera->ProcessKeyboard(Camera_Movement::BACKWARD, m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_A)
     {
-        std::cout << "Key A" << std::endl;
         m_pCamera->ProcessKeyboard(Camera_Movement::LEFT, m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_D)
     {
-        std::cout << "Key D" << std::endl;
         m_pCamera->ProcessKeyboard(Camera_Movement::RIGHT, m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_M)
     {
-        std::cout << "Key M" << std::endl;
     }
     else if (e.m_nKey == GLFW_KEY_N)
     {
-        std::cout << "Key N" << std::endl;
         m_bSel = true;
 
         if(!m_pTree)
@@ -273,20 +264,16 @@ void Window::keyPressEvent(KeyPressEvent& e)
         m_bNewItem = false;
         m_bSel = false;
     }
-    std::cout << "Key Press:" << e.m_nKey << " Act:" << e.m_nAction << " Mods:" << e.m_nMods << " Scancode:" << e.m_nScancode << std::endl;
 }
 
 void Window::keyReleaseEvent(KeyReleaseEvent &e)
 {
     if (e.m_nKey == GLFW_KEY_W)
     {
-        std::cout << "Key W" << std::endl;
     }
     else if (e.m_nKey == GLFW_KEY_S)
     {
-        std::cout << "Key S" << std::endl;
     }
-    std::cout << "Key Release:" << e.m_nKey << " Act:" << e.m_nAction << " Mods:" << e.m_nMods << " Scancode:" << e.m_nScancode << std::endl;
 }
 
 void Window::mouseScroolEvent(MouseScrolledEvent& e)
@@ -314,23 +301,19 @@ void Window::mousePressEvent(MousePressEvent& e)
         }        
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
-        m_pCamera->m_v3Position = glm::vec3(glm::vec3(0.0, 0.0, 1931.6));
-        std::cout<<"Middle X:"<<(m_pt.x * 2 / 1200 - 1)<<" Y:"<<( m_pt.y * 2 / 800 - 1);
+        m_ptFirst = screen2GLPt(m_pt); 
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
-        m_bNewItem = false;
-        m_pNewItem = nullptr;
-        if(m_bSel)
-            m_ptSelFirst = screen2GLPt(m_pt);
-
-        std::cout<<"Right"<<std::endl;
+        {
+            m_bNewItem = false;
+            m_pNewItem = nullptr;
+            if(m_bSel)
+                m_ptFirst = screen2GLPt(m_pt);
+        }
         break;
     default:
-        std::cout<<"Default:"<<std::endl;
         return;
     }
-
-    // std::cout<<"Mouse Press Btn"<<e.m_nBtn<<" Act:"<<e.m_nAct<<" Mods:"<<e.m_nMods<<std::endl;
 }
 
 void Window::mouseReleaseEvent(MouseReleaseEvent& e)
@@ -342,15 +325,23 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
         std::cout << "Middle" << std::endl;
+        {
+            Pt pt = screen2GLPt(m_pt);
+            double dXMove = m_ptFirst.x - pt.x;
+            double dYMove = m_ptFirst.y - pt.y;
+            m_pCamera->m_v3Position.x += (int)dXMove;
+            m_pCamera->m_v3Position.y += (int)dYMove;
+
+        }
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
     {
         std::cout << "Right" << std::endl;
 
         Pt pt = screen2GLPt(m_pt);
-        if (m_bSel && m_pTree->selTest(m_ptSelFirst, pt))
+        if (m_bSel && m_pTree->selTest(m_ptFirst, pt))
         {
-            std::default_random_engine e(time(0));
+            std::default_random_engine e((unsigned int)time(0));
             for (const auto &item : m_vecItems)
             {
                 std::uniform_real_distribution<double> u(0, 1);
@@ -361,7 +352,7 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
                 std::cout << vColor.x << "t" << vColor.y << "\t" << vColor.z << std::endl;
                 pLineItem->render();
             }
-            m_bSel = false;
+            // m_bSel = false;
         }
     }
     break;
@@ -369,14 +360,10 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
         std::cout << "Default:" << std::endl;
         break;
     }
-    // std::cout<<"Mouse Release Btn"<<e.m_nBtn<<" Act:"<<e.m_nAct<<" Mods:"<<e.m_nMods<<std::endl;
 }
 
 void Window::mouseMoveEvent(MouseMoveEvent& e)
 {
-    // if((int)e.m_dX % 100 == 0)
-    //     std::cout<<"MouseMove:  X:"<<e.m_dX<<" Y:"<<e.m_dY<<std::endl;
-
     m_pt.x = e.m_dX;
     m_pt.y = e.m_dY;
     m_pt.z = 0.0;
