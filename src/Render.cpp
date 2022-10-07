@@ -8,8 +8,8 @@
 
 Render::~Render()
 {
-    SAFE_DELETE(m_pShader);
     glDeleteVertexArrays(1, &m_nVAO);
     glDeleteBuffers(1, &m_nVBO);
     glDeleteProgram(m_nShaderID);
+    SAFE_DELETE(m_pShader);
 }
