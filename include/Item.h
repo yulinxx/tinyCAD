@@ -20,6 +20,7 @@ public:
 public:
     virtual void render() = 0;
     virtual void addPt(Pt& pt) = 0;
+    virtual void clear(){}
 
     virtual void setColor(glm::vec4& vColor) = 0;
 
