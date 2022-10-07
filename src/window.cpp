@@ -197,11 +197,9 @@ bool Window::run()
 
         for (const auto &item : m_vecItems)
         { 
-            // LineItem *pItem = static_cast<LineItem *>(item);
             item->matProj = projection;
             item->matView = view;
             item->matModel = glm::mat4(1.0f);
-
             item->render();
         }
 
@@ -210,7 +208,6 @@ bool Window::run()
             m_pSelItem->matProj = projection;
             m_pSelItem->matView = view;
             m_pSelItem->matModel = glm::mat4(1.0f);
-
             m_pSelItem->render();
         }
 
@@ -323,7 +320,6 @@ void Window::mousePressEvent(MousePressEvent& e)
             if(m_bSel)
                 m_ptFirst = screen2GLPt(m_pt);
 
-            // SAFE_DELETE(m_pNewItem);
             if(!m_pSelItem)
             {
                 std::cout<<"new RectSelItem"<<std::endl;
@@ -331,8 +327,6 @@ void Window::mousePressEvent(MousePressEvent& e)
             }
 
             m_pSelItem->addPt(m_ptFirst);
-            // m_pNewItem->addPt(m_ptFirst);
-            
         }
         break;
     default:
