@@ -24,7 +24,12 @@ void TreeIndex::add(LineItem* pLine)
 bool TreeIndex::selTest(Pt& ptA, Pt& ptB)
 {
     // 按矩形范围查找 查询与矩形相交的矩形索引
-    DBox queryBox(DPoint(ptA.x, ptA.y), DPoint(ptB.x, ptB.y));
+    DBox queryBox(DPoint(std::min(ptA.x, ptB.x), std::min(ptA.y, ptB.y)), 
+                  DPoint(std::max(ptA.x, ptB.x), std::max(ptA.y, ptB.y)));
+    std::cout << "-box  x : " << queryBox.min_corner().x() << " "  << queryBox.min_corner().y()
+              << " x: " << queryBox.max_corner().x()
+              << " y: " << queryBox.max_corner().y() << std::endl;
+
     std::vector<BoxValuePair> vecBoxRes;
     m_rtree.query(bgi::intersects(queryBox), std::back_inserter(vecBoxRes));
 
