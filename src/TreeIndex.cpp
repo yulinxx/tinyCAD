@@ -1,10 +1,11 @@
 #include "TreeIndex.h"
+#include "LineItem.h"
 
 void TreeIndex::add(LineItem* pLine)
 {
     //创建多边形
     DPolygon polg;
-    if(pLine->m_pts.size() < 3)
+    if(pLine->m_pts.size() < 2)
         return;
 
     // for (int i = 0; i < pLine->m_pts.size(); i++)
@@ -18,11 +19,17 @@ void TreeIndex::add(LineItem* pLine)
     //计算多边形包围矩形并插入R树
     DBox b = bg::return_envelope<DBox>(polg);
     //插入R树
-    m_rtree.insert(std::make_pair(b, m_rtree.size())); //r树插入外包围矩形 i为索引
+    // m_rtree.insert(std::make_pair(b, m_rtree.size())); //r树插入外包围矩形 i为索引
+    m_rtree.insert(std::make_pair(b, pLine)); //r树插入外包围矩形 i为索引
 }
 
-bool TreeIndex::selTest(Pt& ptA, Pt& ptB)
+// bool TreeIndex::selTest(Pt& ptA, Pt& ptB)
+std::vector<Item*> TreeIndex::selTest(Pt& ptA, Pt& ptB)
 {
+    std::vector<Item*> vItems;
+    if(m_rtree.size() < 1)
+        return vItems;
+        
     // 按矩形范围查找 查询与矩形相交的矩形索引
     DBox queryBox(DPoint(std::min(ptA.x, ptB.x), std::min(ptA.y, ptB.y)), 
                   DPoint(std::max(ptA.x, ptB.x), std::max(ptA.y, ptB.y)));
@@ -48,9 +55,10 @@ bool TreeIndex::selTest(Pt& ptA, Pt& ptB)
         std::cout << "Index:"<<v.second<<"\t"<<bg::wkt<DPoint>(ptMin) 
             << "\t"<<bg::wkt<DPoint>(ptMax) << std::endl;
 
-        std::cout << bg::wkt<DPolygon>(m_vecPolygons[v.second]) << std::endl;
+        // std::cout << bg::wkt<DPolygon>(m_vecPolygons[v.second]) << std::endl;
+        vItems.push_back(v.second);
     }
 
     std::cout << std::endl;
-    return bFind;
+    return vItems;
 }

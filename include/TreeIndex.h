@@ -12,6 +12,9 @@
 #include <vector>
 #include <iostream>
 
+class Item;
+class LineItem;
+
 
 #include "DataDefine.h"
 
@@ -23,9 +26,9 @@ typedef bg::model::d2::point_xy<double> DPoint;
 typedef bg::model::box<DPoint> DBox;    // 矩形
 // typedef bg::model::polygon<DPoint, false, false> DPolygon; // ccw, open polygon
 typedef bg::model::ring<DPoint> DPolygon;
-typedef std::pair<DBox, unsigned> BoxValuePair;
+// typedef std::pair<DBox, unsigned> BoxValuePair;
+typedef std::pair<DBox, Item*> BoxValuePair;
 
-#include "LineItem.h"
 
 class TreeIndex
 {
@@ -35,9 +38,10 @@ public:
 
 public:
     void add(LineItem* pLine);
-    bool selTest(Pt& ptA, Pt& ptB);
+    // bool selTest(Pt& ptA, Pt& ptB);
+    std::vector<Item*> selTest(Pt& ptA, Pt& ptB);
 
-    bool remove(LineItem* pLine);
+    // bool remove(LineItem* pLine);
 
 public:
     //创建R树
