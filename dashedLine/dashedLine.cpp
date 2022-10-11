@@ -127,7 +127,12 @@ int main(void)
     glfwGetFramebufferSize(window, &w, &h);
     glViewport(0, 0, w, h);
     float aspect = (float)w/(float)h;
+
+    // glm::ortho(float left, float right, float bottom, float top, float zNear, float zFar);
+    // 正交投影矩阵。 左、右、上、下坐标。第五和第六个参数则定义了近平面和远平面的距离。
+
     project = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -10.0f, 10.0f);
+    // project = glm::perspective(45.0f, 1.0f, 0.3f, 1000.0f);
     glUniform2f(loc_res, (float)w, (float)h);
 
     while (!glfwWindowShouldClose(window))
