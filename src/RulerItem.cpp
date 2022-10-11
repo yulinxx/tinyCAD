@@ -38,6 +38,18 @@ void RulerItem::initPt()
             m_pts.emplace_back(Pt{double(j), double(h / 2 - 10)});
         }
     }
+    
+    for(int i = -h/2; i < h/2; i += 100)
+    {
+        m_pts.emplace_back(Pt{double(-w / 2), double(i)});
+        m_pts.emplace_back(Pt{double(-w / 2 + 15), double(i)});
+
+        for(int j = i + 10; j < (i + 100); j += 10)
+        {
+            m_pts.emplace_back(Pt{double(-w / 2), double(j), });
+            m_pts.emplace_back(Pt{double(-w / 2 + 10), double(j)});
+        }
+    }
     m_pRender->updateData();
 }
 
