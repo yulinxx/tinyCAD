@@ -252,31 +252,19 @@ void Window::keyPressEvent(KeyPressEvent& e)
     }
     else if (e.m_nKey == GLFW_KEY_N)
     {
-        // m_bSel = true;
 
-        // if(!m_pTree)
-        //     m_pTree = new TreeIndex();
-        
-        // for(const auto& item : m_vecItems)
-        // {
-        //     LineItem* pLineItem = static_cast<LineItem*>(item);
-        //     m_pTree->add(pLineItem);
-        // }
     }
     else if(e.m_nKey == GLFW_KEY_ESCAPE)
     {
-        if(m_pNewItem)
+        if(m_pNewItem) // todo:如果线段只有一个点,则不添加 
         {
-            if(m_pNewItem) // todo:如果线段只有一个点,则不添加 
-            {
-                if(!m_pTree)
-                    m_pTree = new TreeIndex();
+            if(!m_pTree)
+                m_pTree = new TreeIndex();
 
-               LineItem* pLineItem = static_cast<LineItem*>(m_pNewItem); 
-                m_pTree->add(pLineItem);
-                m_vecItems.emplace_back(m_pNewItem);
-                m_pNewItem = nullptr;
-            }
+            LineItem* pLineItem = static_cast<LineItem*>(m_pNewItem); 
+            m_pTree->add(pLineItem);
+            m_vecItems.emplace_back(m_pNewItem);
+            m_pNewItem = nullptr;
         }
 
         m_bSel = false;
@@ -392,7 +380,6 @@ void Window::mouseMoveEvent(MouseMoveEvent& e)
     
     if(m_bSel)
     {
-        std::cout<<"render RectSelItem"<<std::endl;
         m_pSelItem->addPt(screen2GLPt(m_pt));
 
         Pt pt = screen2GLPt(m_pt);
