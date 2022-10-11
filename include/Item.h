@@ -6,6 +6,11 @@
 
 #include <bitset>
 
+#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=nullptr; } }
+#define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=nullptr; } }
+#define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=nullptr; } }
+
+
 enum Flag{E_Sel, E_CanSel, E_Show, E_Group, 
     Placeholder1, Placeholder2, Placeholder3, Placeholder4};
 
@@ -19,7 +24,7 @@ public:
 
 public:
     virtual void render() = 0;
-    virtual void addPt(Pt& pt) = 0;
+    virtual void addPt(Pt& pt) {}
     virtual void clear(){}
 
     virtual void setColor(glm::vec4& vColor) = 0;

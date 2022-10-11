@@ -17,9 +17,6 @@ public:
     virtual void updateData() override;
     virtual void setColor(glm::vec4& vColor) override;
 
-public:
-    // void setData(LinePts* pts);
-
 private:
     LineItem* m_pItem = nullptr;
 };
