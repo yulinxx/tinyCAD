@@ -15,6 +15,7 @@
 
 #include "LineItem.h"
 #include "RectSelItem.h"
+#include "RulerItem.h"
 
 #include "DataDefine.h"
 
@@ -36,6 +37,10 @@ Window::~Window()
 {
     for(auto& item : m_vecItems)
         SAFE_DELETE(item);
+
+    SAFE_DELETE(m_pSelItem);
+    SAFE_DELETE(m_pVRuler);
+    SAFE_DELETE(m_pHRuler);
 
     SAFE_DELETE(m_pCamera);
 
@@ -186,6 +191,9 @@ bool Window::run()
         pItem->render();
     };
 
+    if(!m_pHRuler)
+        m_pHRuler = new RulerItem();
+
     // render loop
     while (!glfwWindowShouldClose(m_pWnd))
     {
@@ -210,6 +218,9 @@ bool Window::run()
 
         if(m_pSelItem)
             setRender(m_pSelItem, projection, view, glm::mat4(1.0f));
+
+        if(m_pHRuler)
+            setRender(m_pHRuler, projection, view, glm::mat4(1.0f));
 
         glfwSwapBuffers(m_pWnd);
         glfwPollEvents();

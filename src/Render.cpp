@@ -5,7 +5,6 @@
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=nullptr; } }
 #define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=nullptr; } }
 
-
 Render::~Render()
 {
     glDeleteVertexArrays(1, &m_nVAO);

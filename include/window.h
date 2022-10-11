@@ -71,6 +71,9 @@ private:
     Item* m_pNewItem = nullptr;
     Item* m_pSelItem = nullptr;
 
+    Item* m_pHRuler = nullptr;  // 标尺
+    Item* m_pVRuler = nullptr;
+
     Pt      m_pt;
     Pt      m_ptFirst; // 记录鼠标的第一点(GL坐标点)
 
