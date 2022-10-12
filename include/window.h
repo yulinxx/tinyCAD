@@ -3,6 +3,7 @@
 
 #include <string>
 #include <functional>
+#include <vector>
 
 #include "DataDefine.h"
 #include "Event.h"
@@ -14,6 +15,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <mutex>
 
 class GLFWwindow;
 class Item;
@@ -73,6 +75,8 @@ private:
 
     Item* m_pRuler = nullptr;  // 标尺
 
+    std::vector<Item*> m_vecSelItems; // 选中的图元
+
     Pt      m_pt;
     Pt      m_ptFirst; // 记录鼠标的第一点(GL坐标点)
 
@@ -83,6 +87,9 @@ private:
     TreeIndex* m_pTree = nullptr;
 
     bool m_bSel = false;
+
+
+    std::mutex m_mutex;
 };
 
 #endif //_WINDOW_H_

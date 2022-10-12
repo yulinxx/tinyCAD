@@ -184,6 +184,9 @@ bool Window::run()
     float lastFrame = 0.0f;
 
     auto setRender = [](Item* pItem, glm::mat4& matProj, glm::mat4& matView, glm::mat4& matModel){
+        if(!pItem)
+            return;
+
         pItem->matProj = matProj;
         pItem->matView = matView;
         pItem->matModel = matModel;
@@ -209,8 +212,12 @@ bool Window::run()
                     (float)m_nWndW / (float)m_nWndH, 0.1f, 9000.0f);
         glm::mat4& view = m_pCamera->GetViewMatrix();
 
-        for (const auto &item : m_vecItems)
-           setRender(item, projection, view, glm::mat4(1.0f));
+        {
+            std::lock_guard<std::mutex> guard(m_mutex);
+
+            for (const auto &item : m_vecItems)
+               setRender(item, projection, view, glm::mat4(1.0f));
+        }
 
         if(m_pNewItem)
             setRender(m_pNewItem, projection, view, glm::mat4(1.0f));
@@ -263,6 +270,26 @@ void Window::keyPressEvent(KeyPressEvent& e)
     else if (e.m_nKey == GLFW_KEY_N)
     {
 
+    }
+    else if(e.m_nKey == GLFW_KEY_DELETE)
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+        // 从树中删除
+        m_pTree->eraseItem(m_vecSelItems);
+
+        for(int i = (int)m_vecSelItems.size() - 1; i >= 0; i--)
+        {
+            auto item = m_vecSelItems[i];
+
+            auto pos = find(m_vecItems.begin(),m_vecItems.end(), item);
+            if (pos != m_vecItems.end()) 
+            {
+                m_vecItems.erase(pos);
+            } 
+
+            SAFE_DELETE(m_vecSelItems[i]);
+        }
+        m_vecSelItems.clear();
     }
     else if(e.m_nKey == GLFW_KEY_ESCAPE)
     {
@@ -319,12 +346,13 @@ void Window::mousePressEvent(MousePressEvent& e)
         {
             if(!m_pNewItem)
             {
+                std::cout << "New LineItem" << std::endl;
                 m_pNewItem = new LineItem();
             }
-            m_pNewItem->addPt( screen2GLPt(m_pt) ); 
-            
-            std::cout<<" Left X: "<<m_pt.x<<" / "<<(m_pt.x - m_nWndW / 2)<< " \t"
-                     <<" Y: "<<m_pt.y<<" / "<<( -m_pt.y + m_nWndH / 2 )<<std::endl;
+            m_pNewItem->addPt( screen2GLPt(m_pt) );
+
+            std::cout << " Left X: " << m_pt.x << " / " << (m_pt.x - m_nWndW / 2) << " \t"
+                      << " Y: " << m_pt.y << " / " << (-m_pt.y + m_nWndH / 2) << std::endl;
         }        
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
@@ -395,16 +423,16 @@ void Window::mouseMoveEvent(MouseMoveEvent& e)
         Pt pt = screen2GLPt(m_pt);
         if (m_pTree)
         {
-            auto vSels = m_pTree->selTest(m_ptFirst, pt);
+           std::cout<<"Select "<<m_vecSelItems.size()<<" Items"<<std::endl;
+            m_vecSelItems = m_pTree->selTest(m_ptFirst, pt);
             std::default_random_engine e((unsigned int)time(0));
-            for (const auto &item : vSels)
+            for (const auto &item : m_vecSelItems)
             {
                 std::uniform_real_distribution<double> u(0, 1);
 
                 LineItem *pLineItem = static_cast<LineItem *>(item);
                 glm::vec4 vColor = glm::vec4(u(e), u(e), u(e), 1.0);
                 pLineItem->setColor(vColor);
-                std::cout << vColor.x << "t" << vColor.y << "\t" << vColor.z << std::endl;
                 pLineItem->render();
             }
         }

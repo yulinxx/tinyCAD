@@ -41,7 +41,8 @@ public:
     // bool selTest(Pt& ptA, Pt& ptB);
     std::vector<Item*> selTest(Pt& ptA, Pt& ptB);
 
-    // bool remove(LineItem* pLine);
+    bool eraseItem(Item* pLine);
+    bool eraseItem(std::vector<Item*> vecLines);
 
 public:
     //创建R树
