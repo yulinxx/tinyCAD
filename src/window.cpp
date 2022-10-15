@@ -13,6 +13,7 @@
 #include <random>
 #include <functional>
 
+#include "PointItem.h"
 #include "LineItem.h"
 #include "RectSelItem.h"
 #include "RulerItem.h"
@@ -393,8 +394,19 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
             Pt pt = screen2GLPt(m_pt);
             double dXMove = m_ptFirst.x - pt.x;
             double dYMove = m_ptFirst.y - pt.y;
-            m_pCamera->m_v3Position.x += (int)dXMove;
-            m_pCamera->m_v3Position.y += (int)dYMove;
+            if(fabs(dXMove) < 20 && fabs(dYMove) < 20)
+            {
+                PointItem* ptItem = new PointItem();
+                ptItem->addPt(pt);
+                m_vecItems.emplace_back(ptItem);
+
+            }
+            else
+            {
+                m_pCamera->m_v3Position.x += (int)dXMove;
+                m_pCamera->m_v3Position.y += (int)dYMove;
+            }
+
         }
         m_bSel = false;
         break;
