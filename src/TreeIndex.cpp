@@ -1,5 +1,6 @@
 #include "TreeIndex.h"
 #include "LineItem.h"
+#include "PointItem.h"
 
 void TreeIndex::add(LineItem* pLine)
 {
@@ -12,15 +13,30 @@ void TreeIndex::add(LineItem* pLine)
     //     polg.outer().push_back(DPoint(pLine->m_pts[i].x, pLine->m_pts[i].y));
 
     for (int i = 0; i < pLine->m_pts.size(); i++)
-        polg.push_back(DPoint(pLine->m_pts[i].x, pLine->m_pts[i].y));
+        polg.emplace_back(DPoint(pLine->m_pts[i].x, pLine->m_pts[i].y));
 
-    m_vecPolygons.push_back(polg);
+    m_vecPolygons.emplace_back(polg);
 
     //计算多边形包围矩形并插入R树
     DBox b = bg::return_envelope<DBox>(polg);
     //插入R树
     // m_rtree.insert(std::make_pair(b, m_rtree.size())); //r树插入外包围矩形 i为索引
     m_rtree.insert(std::make_pair(b, pLine)); //r树插入外包围矩形 i为索引
+}
+
+void TreeIndex::add(PointItem* pPt)
+{
+   //创建多边形
+    DPolygon polg;
+    polg.emplace_back(DPoint(pPt->m_pt.x, pPt->m_pt.y));
+
+    m_vecPolygons.emplace_back(polg);
+
+    //计算多边形包围矩形并插入R树
+    DBox b = bg::return_envelope<DBox>(polg);
+    //插入R树
+    // m_rtree.insert(std::make_pair(b, m_rtree.size())); //r树插入外包围矩形 i为索引
+    m_rtree.insert(std::make_pair(b, pPt)); //r树插入外包围矩形 i为索引 
 }
 
 // bool TreeIndex::selTest(Pt& ptA, Pt& ptB)

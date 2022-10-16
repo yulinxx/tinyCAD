@@ -14,7 +14,7 @@
 
 class Item;
 class LineItem;
-
+class PointItem;
 
 #include "DataDefine.h"
 
@@ -37,7 +37,8 @@ public:
     ~TreeIndex() = default;
 
 public:
-    void add(LineItem* pLine);
+    void add(LineItem* pLin);
+    void add(PointItem* pPt);
     // bool selTest(Pt& ptA, Pt& ptB);
     std::vector<Item*> selTest(Pt& ptA, Pt& ptB);
 
