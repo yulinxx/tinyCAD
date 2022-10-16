@@ -22,14 +22,7 @@ RulerItemRender::~RulerItemRender()
 
 void RulerItemRender::render()
 {
-    m_pShader->use();
-
-    m_pShader->setMat4("projection", m_pItem->matProj); 
-    m_pShader->setMat4("view", m_pItem->matView);
-    m_pShader->setMat4("model", m_pItem->matModel);
-
-    glBindVertexArray(m_nVAO);
-    // glDrawArrays(GL_LINE_STRIP, 0, GLsizei(m_pItem->m_pts.size()));
+    Render::render(m_pItem->m_matProj, m_pItem->m_matView, m_pItem->m_matModel, m_pItem->m_v4Color);
     glDrawArrays(GL_LINES, 0, GLsizei(m_pItem->m_pts.size()));
 }
 
@@ -44,9 +37,4 @@ void RulerItemRender::updateData()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0); 
-}
-
-void RulerItemRender::setColor(glm::vec4& vColor)
-{
-   m_pShader->setVec4("color", vColor); 
 }

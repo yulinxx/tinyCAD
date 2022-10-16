@@ -32,5 +32,6 @@ void LineItem::addPt(Pt& pt)
 
 void LineItem::setColor(glm::vec4& vColor)
 {
-    m_pRender->setColor(vColor);
+    // m_pRender->setColor(vColor);
+    m_v4Color = vColor;
 }

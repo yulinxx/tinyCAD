@@ -5,7 +5,7 @@
 RectSelItem::RectSelItem()
 {
     m_pRender = new RectSelItemRender(this);
-    m_pRender->setColor(glm::vec4(0.0, 1.0, 1.0, 1.0));
+    // m_pRender->setColor(glm::vec4(0.0, 1.0, 1.0, 1.0));
 }
 
 RectSelItem::~RectSelItem()
@@ -55,5 +55,6 @@ void RectSelItem::clear()
 
 void RectSelItem::setColor(glm::vec4& vColor)
 {
-    m_pRender->setColor(vColor);
+    // m_pRender->setColor(vColor);
+    m_v4Color = vColor;
 }

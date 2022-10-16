@@ -55,5 +55,6 @@ void RulerItem::initPt()
 
 void RulerItem::setColor(glm::vec4& vColor)
 {
-    m_pRender->setColor(vColor);
+    // m_pRender->setColor(vColor);
+    m_v4Color = vColor;
 }

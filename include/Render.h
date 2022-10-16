@@ -18,11 +18,14 @@ public:
     virtual ~Render();
 
 public:
-    virtual void render() = 0;
+    virtual void render(){}
     virtual void updateData() = 0;
 
-    virtual void setColor(glm::vec4& vColor) = 0;
+private:
+public:
+    void render(glm::mat4& proj, glm::mat4& view, glm::mat4& model, glm::vec4& color);
 
+public:
     Shader* m_pShader = nullptr;
     unsigned int m_nShaderID = -1;
 

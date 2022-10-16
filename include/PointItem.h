@@ -10,6 +10,7 @@ class PointItem : public Item
 {
 public:
     PointItem();
+    PointItem(Pt& pt);
     virtual ~PointItem();
 
 public:
@@ -17,8 +18,13 @@ public:
     virtual void addPt(Pt& pt) override;
     virtual void setColor(glm::vec4& vColor) override;
 
+public:    
+    void setPtSize(int nPtSize);
+
 public:
     Pt m_pt;
+    int m_nPtSize = 5;
+    
 
 private:
     Render* m_pRender = nullptr;

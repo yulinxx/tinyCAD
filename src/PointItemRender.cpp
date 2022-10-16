@@ -22,13 +22,10 @@ PointItemRender::~PointItemRender()
 
 void PointItemRender::render()
 {
-    m_pShader->use();
+    Render::render(m_pItem->m_matProj, m_pItem->m_matView, m_pItem->m_matModel, m_pItem->m_v4Color);
 
-    m_pShader->setMat4("projection", m_pItem->matProj); 
-    m_pShader->setMat4("view", m_pItem->matView);
-    m_pShader->setMat4("model", m_pItem->matModel);
+    m_pShader->setInt("ptsize", m_pItem->m_nPtSize);
 
-    glBindVertexArray(m_nVAO);
     glDrawArrays(GL_POINTS, 0, GLsizei(1));
 }
 
@@ -45,10 +42,4 @@ void PointItemRender::updateData()
     glBindVertexArray(0); 
 
     glEnable(GL_PROGRAM_POINT_SIZE);
-
-}
-
-void PointItemRender::setColor(glm::vec4& vColor)
-{
-   m_pShader->setVec4("color", vColor); 
 }

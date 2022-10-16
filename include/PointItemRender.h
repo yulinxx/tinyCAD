@@ -15,10 +15,8 @@ public:
 public:
     virtual void render() override;
     virtual void updateData() override;
-    virtual void setColor(glm::vec4& vColor) override;
 
 public:
-    // void setData(LinePts* pts);
 
 private:
     PointItem* m_pItem = nullptr;
