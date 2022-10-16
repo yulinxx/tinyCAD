@@ -188,9 +188,9 @@ bool Window::run()
         if(!pItem)
             return;
 
-        pItem->matProj = matProj;
-        pItem->matView = matView;
-        pItem->matModel = matModel;
+        pItem->m_matProj = matProj;
+        pItem->m_matView = matView;
+        pItem->m_matModel = matModel;
         pItem->render();
     };
 
@@ -334,8 +334,8 @@ void Window::mousePressEvent(MousePressEvent& e)
                 m_pTree = new TreeIndex();
 
             LineItem* pLineItem = static_cast<LineItem*>(m_pNewItem);
-            m_pTree->add(pLineItem);
             m_vecItems.emplace_back(m_pNewItem);
+            m_pTree->add(pLineItem);
             
             m_pNewItem = nullptr;
         }
@@ -396,10 +396,20 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
             double dYMove = m_ptFirst.y - pt.y;
             if(fabs(dXMove) < 20 && fabs(dYMove) < 20)
             {
-                PointItem* ptItem = new PointItem();
-                ptItem->addPt(pt);
+                PointItem* ptItem = new PointItem(pt);
+
+                std::default_random_engine e(time(0));
+                std::uniform_int_distribution<int> u(1, 20);
+                std::uniform_real_distribution<double >uA(0,1);
+
+                ptItem->setPtSize(u(e));
+                ptItem->setColor(glm::vec4(uA(e), uA(e), uA(e), 0));
+
                 m_vecItems.emplace_back(ptItem);
 
+                if(!m_pTree)
+                    m_pTree = new TreeIndex();
+                m_pTree->add(ptItem);
             }
             else
             {
