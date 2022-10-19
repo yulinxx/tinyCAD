@@ -37,7 +37,9 @@ void RulerItem::initPt(double dWndW /*=1200*/, double dWndH /*=800*/)
             m_pts.emplace_back(Pt{double(j), double(dWndH / 2 - 10)});
         }
     }
-    
+    m_pts.emplace_back(Pt{-dWndW / 2, dWndH / 2});
+    m_pts.emplace_back(Pt{dWndW / 2, dWndH / 2});
+
     // 竖向尺子
     for(int i = -dWndH/2; i < dWndH/2; i += 100)
     {
@@ -50,6 +52,9 @@ void RulerItem::initPt(double dWndW /*=1200*/, double dWndH /*=800*/)
             m_pts.emplace_back(Pt{double(-dWndW / 2 + 10), double(j)});
         }
     }
+    m_pts.emplace_back(Pt{-dWndW / 2, -dWndH / 2});
+    m_pts.emplace_back(Pt{-dWndW / 2, dWndH / 2});
+
     m_pRender->updateData();
 }
 
