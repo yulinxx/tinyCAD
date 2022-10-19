@@ -62,8 +62,8 @@ private:
     Pt screen2GLPt(Pt& ptS); // 屏幕坐标转OpenGL坐标
 
 private:
-    int m_nWndW = 800;
-    int m_nWndH = 600;
+    double m_dWndW = 800;
+    double m_dWndH = 600;
 
     GLFWwindow* m_pWnd = nullptr;
 

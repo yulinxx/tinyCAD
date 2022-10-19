@@ -33,6 +33,7 @@
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=nullptr; } }
 #define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=nullptr; } }
 
+#define PI  3.1415926 
 
 Window::~Window()
 {
@@ -54,9 +55,10 @@ bool Window::initWnd(int w, int h, std::string& strName)
 {
     initLog(strName);
 
-    m_pCamera = new Camera(glm::vec3(0.0, 0.0, 965.8));
-    m_nWndW = w;
-    m_nWndH = h;
+    // 相机距离为: h/2 / tan(45/2) = 965.6854249 正好覆盖整个 1200 * 800 窗口
+    m_pCamera = new Camera(glm::vec3(0.0, 0.0, 965.6854249));
+    m_dWndW = w;
+    m_dWndH = h;
 
 
     // for(int i = 0; i < 1100; i++)
@@ -81,7 +83,7 @@ bool Window::initWnd(int w, int h, std::string& strName)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    m_pWnd = glfwCreateWindow(m_nWndW, m_nWndH, strName.c_str(), nullptr, nullptr);
+    m_pWnd = glfwCreateWindow(m_dWndW, m_dWndH, strName.c_str(), nullptr, nullptr);
     if (m_pWnd == nullptr)
     {
         std::cout << "Failed to create GLFW Window" << std::endl;
@@ -182,6 +184,16 @@ bool Window::initWnd(int w, int h, std::string& strName)
 
 bool Window::run()
 {
+    LineItem* pLineItem = new LineItem();
+    m_vecItems.emplace_back(pLineItem);
+    pLineItem->addPt(Pt(-600, -400));
+    pLineItem->addPt(Pt(-600, 400));
+    pLineItem->addPt(Pt(600, 400));
+    pLineItem->addPt(Pt(600, -400));
+    // pLineItem->addPt(Pt(-600, -400));
+    pLineItem->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+    
     float lastFrame = 0.0f;
 
     auto setRender = [](Item* pItem, glm::mat4& matProj, glm::mat4& matView, glm::mat4& matModel){
@@ -209,9 +221,15 @@ bool Window::run()
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4& projection = glm::perspective(glm::radians(m_pCamera->m_dZoom), 
-                    (float)m_nWndW / (float)m_nWndH, 0.1f, 9000.0f);
-        glm::mat4& view = m_pCamera->GetViewMatrix();
+        // glm::perspective(float fovy, float aspect, float zNear, float zFar);
+        glm::mat4 projection = glm::perspective(glm::radians(m_pCamera->m_dZoom), 
+                    float(m_dWndW / m_dWndH), 0.1f, 9000.0f);
+
+        // glm::ortho(float left, float right, float bottom, float top, float zNear, float zFar); 
+        // glm::mat4 projection = glm::ortho(-m_nWndW / 2, m_nWndW / 2, -m_dWndH / 2, m_dWndH / 2, 1, 100);
+        // glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
+
+        glm::mat4 view = m_pCamera->GetViewMatrix();
 
         {
             std::lock_guard<std::mutex> guard(m_mutex);
@@ -321,8 +339,13 @@ void Window::keyReleaseEvent(KeyReleaseEvent &e)
 
 void Window::mouseScroolEvent(MouseScrolledEvent& e)
 {
-    std::cout<<"XOffset:"<<e.m_dXOffset<<" YOffset:"<<e.m_dYOffset<<std::endl;
+    // std::cout<<"XOffset:"<<e.m_dXOffset<<" YOffset:"<<e.m_dYOffset<<std::endl;
     m_pCamera->ProcessMouseScroll(static_cast<float>(e.m_dYOffset));
+
+    double dH = m_pCamera->m_v3Position.z *  tan(m_pCamera->m_dZoom / 2 * PI / 180);
+    double dW = 3.0 / 2.0 * dH;
+    RulerItem* rulerItem = static_cast<RulerItem*>(m_pRuler);
+    rulerItem->initPt(dW * 2, dH * 2);
 }
 
 void Window::mousePressEvent(MousePressEvent& e)
@@ -352,8 +375,8 @@ void Window::mousePressEvent(MousePressEvent& e)
             }
             m_pNewItem->addPt( screen2GLPt(m_pt) );
 
-            std::cout << " Left X: " << m_pt.x << " / " << (m_pt.x - m_nWndW / 2) << " \t"
-                      << " Y: " << m_pt.y << " / " << (-m_pt.y + m_nWndH / 2) << std::endl;
+            std::cout << " Left X: " << m_pt.x << " / " << (m_pt.x - m_dWndW / 2) << " \t"
+                      << " Y: " << m_pt.y << " / " << (-m_pt.y + m_dWndH / 2) << std::endl;
         }        
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
@@ -467,6 +490,6 @@ Pt Window::screen2GLPt(Pt& ptS)
     double dRadio = m_pCamera->m_v3Position.z / m_pCamera->m_v3PositionOri.z;
     double dV = m_pCamera->m_v3Position.x - m_pCamera->m_v3PositionOri.x;
     double dH = m_pCamera->m_v3Position.y - m_pCamera->m_v3PositionOri.y;
-    return Pt(ptS.x * dRadio - m_nWndW* dRadio  / 2 + dV, 
-                    -1 * ptS.y * dRadio + m_nWndH* dRadio / 2 - dH);
+    return Pt(ptS.x * dRadio - m_dWndW* dRadio  / 2 + dV, 
+                    -1 * ptS.y * dRadio + m_dWndH* dRadio / 2 - dH);
 }

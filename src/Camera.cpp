@@ -74,6 +74,7 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
 void Camera::ProcessMouseScroll(float yoffset)
 {
     m_dZoom -= (float)yoffset;
+    // std::cout << "Zoom: " << m_dZoom << std::endl;
     // if (m_dZoom < 1.0f)
     //     m_dZoom = 1.0f;
     // if (m_dZoom > 45.0f)
