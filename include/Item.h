@@ -37,7 +37,7 @@ public:
     glm::mat4 m_matProj{1.0f}; 
     glm::mat4 m_matView{1.0f};
     glm::mat4 m_matModel{1.0f};
-    glm::vec4 m_v4Color{1.0, 0.0, 0.0, 0.0};
+    glm::vec4 m_v4Color{1.0, 0.0, 0.0, 1.0};
 
     std::bitset<8> m_bitFlag;   // 标志符设置 0 是否选择 1 是否能选择 2 是否显示
 };

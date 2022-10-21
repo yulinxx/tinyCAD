@@ -56,7 +56,7 @@ bool Window::initWnd(int w, int h, std::string& strName)
     initLog(strName);
 
     // 相机距离为: h/2 / tan(45/2) = 965.6854249 正好覆盖整个 1200 * 800 窗口
-    m_pCamera = new Camera(glm::vec3(0.0, 0.0, 965.6854249));
+    m_pCamera = new Camera(glm::vec3(0.0, 0.0, 965.6954249));
     m_dWndW = w;
     m_dWndH = h;
 
@@ -182,6 +182,9 @@ bool Window::initWnd(int w, int h, std::string& strName)
     return true;
 }
 
+// (2 封私信 / 24 条消息) OpenGL 线段被遮挡时如何绘制成虚线？ - 知乎
+// https://www.zhihu.com/question/510631442
+
 bool Window::run()
 {
     LineItem* pLineItem = new LineItem();
@@ -208,6 +211,10 @@ bool Window::run()
 
     if(!m_pRuler)
         m_pRuler = new RulerItem();
+
+    // 混合
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // render loop
     while (!glfwWindowShouldClose(m_pWnd))
@@ -345,7 +352,7 @@ void Window::mouseScroolEvent(MouseScrolledEvent& e)
     double dH = m_pCamera->m_v3Position.z *  tan(m_pCamera->m_dZoom / 2 * PI / 180);
     double dW = 3.0 / 2.0 * dH;
     RulerItem* rulerItem = static_cast<RulerItem*>(m_pRuler);
-    rulerItem->initPt(dW * 2, dH * 2);
+    rulerItem->initPt(dW * 2 - 10, dH * 2 - 10);
 }
 
 void Window::mousePressEvent(MousePressEvent& e)
@@ -426,7 +433,7 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
                 std::uniform_real_distribution<double >uA(0,1);
 
                 ptItem->setPtSize(u(e));
-                ptItem->setColor(glm::vec4(uA(e), uA(e), uA(e), 0));
+                ptItem->setColor(glm::vec4(uA(e), uA(e), uA(e), 1.0));
 
                 m_vecItems.emplace_back(ptItem);
 
