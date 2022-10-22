@@ -1,3 +1,6 @@
+// https://stackoverflow.com/questions/6017176/gllinestipple-deprecated-in-opengl-3-1
+// 主要在于 Shader 将部分像素进行丢弃, 形成虚线
+// 也可以使用部分像素透明色,形成虚线
 
 /////////////////////////////////////////////////////////////
 #include "Shader.h"
