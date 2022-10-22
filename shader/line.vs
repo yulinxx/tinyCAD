@@ -5,13 +5,15 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-out vec3 frag_pos;
-flat out vec3 vert_pos;
+flat out vec3 startPos;
+out vec3 vertPos;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    // gl_Position = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    vec4 pos = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = pos;
 
-    vert_pos = aPos;
-    frag_pos = aPos;
+    vertPos     = pos.xyz / pos.w;
+    startPos    = vertPos;
 }

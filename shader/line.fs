@@ -1,36 +1,28 @@
 #version 450 core
-out vec4 FragColor;
-
-uniform mat4 camera;
-uniform sampler2D depthbuf;
-
-in vec3 frag_pos;
-flat in vec3 vert_pos;
-uniform float scatter_size = 0.2;
 
 uniform vec4 color = vec4(1.0f, 0.1f, 0.0f, 1.0f);
 
-// 绘制虚线：以线段一端为起点，线上任意一点到起点距离取模，alpha 0~1交替出现就成了虚线
-float getShadow(vec3 pos) {
-    vec4 p = camera * vec4(pos, 1.0);
-    p.xyz /= p.w;
-    p.xyz = p.xyz * 0.5 + 0.5;
-    float f = 3.0;
-    float castmask = max(f * (p.x), 0.0) * max(f * (1.0 - p.x), 0.0) * max(f * (p.y), 0.0) * max(f * (1.0 - p.y), 0.0);
-    castmask = min(castmask, 1.0);
-    float d = texture(depthbuf, p.xy).r;
-    d = 0.3;
-    return castmask * max(sign(p.z - d - 0.00001), 0.0);
-}
+flat in vec3 startPos;
+in vec3 vertPos;
 
-void main() {
-    float shadow = getShadow(frag_pos);
-    float distance = length(vert_pos - frag_pos);
+out vec4 fragColor;
+
+// uniform vec2  u_resolution;
+// uniform uint  u_pattern = 0x18ff;
+// uniform float u_factor = 2.0f;
+vec2 u_resolution = vec2(1200,800);
+uint  u_pattern = 0x18ff;   // 线型
+// uint u_pattern = 0xf00f;
+float u_factor = 1.f;
+
+void main()
+{
+    vec2 dir = (vertPos.xy - startPos.xy) * u_resolution / 2.0;
+    float dist = length(dir);
     
-    // float alpha = 1.0;
-    float alpha = 1.0 - shadow + shadow * max(0.0, sign(mod(distance, scatter_size) - scatter_size*0.5));
-    if(int(frag_pos.x) % 3 == 0)
-        alpha = 0;
+    uint bit = uint(round(dist / u_factor)) & 15U;
+    if((u_pattern&(1U<<bit)) == 0U )
+        discard;
 
-    FragColor = vec4(color.x, color.y, color.z, alpha);
+    fragColor = color;
 }
