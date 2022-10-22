@@ -182,21 +182,38 @@ bool Window::initWnd(int w, int h, std::string& strName)
     return true;
 }
 
-// (2 封私信 / 24 条消息) OpenGL 线段被遮挡时如何绘制成虚线？ - 知乎
-// https://www.zhihu.com/question/510631442
-
 bool Window::run()
 {
-    LineItem* pLineItem = new LineItem();
-    m_vecItems.emplace_back(pLineItem);
-    pLineItem->addPt(Pt(-600, -400));
-    pLineItem->addPt(Pt(-600, 400));
-    pLineItem->addPt(Pt(600, 400));
-    pLineItem->addPt(Pt(600, -400));
-    // pLineItem->addPt(Pt(-600, -400));
-    pLineItem->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    // 边框測試
+    if(1)
+    {
+     LineItem *pLineItem = new LineItem();
+     m_vecItems.emplace_back(pLineItem);
+     pLineItem->addPt(Pt(-600, -400));
+     pLineItem->addPt(Pt(-600, 400));
+     pLineItem->addPt(Pt(600, 400));
+     pLineItem->addPt(Pt(600, -400));
+     // pLineItem->addPt(Pt(-600, -400));
 
-    
+     std::default_random_engine e(time(0));
+     std::uniform_int_distribution<int> uW(1, 10);
+     std::uniform_int_distribution<int> u(1, 0x0fff);
+     std::uniform_real_distribution<double> uA(0, 20);
+
+     int nW = uW(e);
+     pLineItem->setLineWidth(nW);
+
+     unsigned int nP = u(e);
+     pLineItem->setPattern(nP);
+
+     float dF = uA(e);
+     pLineItem->setFactor(dF);
+     pLineItem->setResolution(Pt(m_dWndW, m_dWndH));
+     pLineItem->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+     std::cout << "--- line W: " << nW << " Pattern" << nP << " Factor" << dF << std::endl;
+    }
+
     float lastFrame = 0.0f;
 
     auto setRender = [](Item* pItem, glm::mat4& matProj, glm::mat4& matView, glm::mat4& matModel){
@@ -209,12 +226,13 @@ bool Window::run()
         pItem->render();
     };
 
+    // 标尺
     if(!m_pRuler)
         m_pRuler = new RulerItem();
 
-    // 混合
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // // 混合,带透明色
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // render loop
     while (!glfwWindowShouldClose(m_pWnd))
@@ -379,6 +397,25 @@ void Window::mousePressEvent(MousePressEvent& e)
             {
                 std::cout << "New LineItem" << std::endl;
                 m_pNewItem = new LineItem();
+    
+                LineItem *pLineItem = static_cast<LineItem *>(m_pNewItem);
+                std::default_random_engine e(time(0));
+                std::uniform_int_distribution<int> uW(1, 10);
+                std::uniform_int_distribution<int> u(1, 0x0fff);
+                std::uniform_real_distribution<double> uA(0, 20);
+
+                int nW = uW(e);
+                pLineItem->setLineWidth(nW);
+
+                unsigned int nP = u(e);
+                pLineItem->setPattern(nP);
+
+                float dF = uA(e);
+                pLineItem->setFactor(dF);
+                pLineItem->setResolution(Pt(m_dWndW, m_dWndH));
+                pLineItem->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+                std::cout << "--- line W: " << nW << " Pattern" << nP << " Factor" << dF << std::endl;
             }
             m_pNewItem->addPt( screen2GLPt(m_pt) );
 
@@ -429,11 +466,13 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
                 PointItem* ptItem = new PointItem(pt);
 
                 std::default_random_engine e(time(0));
-                std::uniform_int_distribution<int> u(1, 20);
-                std::uniform_real_distribution<double >uA(0,1);
+                std::uniform_real_distribution<double >uA(1,10);
+                std::uniform_real_distribution<double >uB(0,1);
 
-                ptItem->setPtSize(u(e));
-                ptItem->setColor(glm::vec4(uA(e), uA(e), uA(e), 1.0));
+                float dSz = uA(e);
+                ptItem->setPtSize(dSz);
+                std::cout<<" Pt Size:"<< dSz << std::endl;
+                ptItem->setColor(glm::vec4(uB(e), uB(e), uB(e), 1.0));
 
                 m_vecItems.emplace_back(ptItem);
 
