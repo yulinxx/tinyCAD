@@ -2,62 +2,52 @@
 set(INC_DIR ./include ./shader)
 include_directories(${INC_DIR})
 
-add_executable(dashedLine dashedLine.cpp)
+set(CPP_DIR
+    ./
+)
 
-################################################################
-# find_package(OpenGL REQUIRED)
-# if(OpenGL_FOUND)
-#     message(STATUS  " -----OpenGL_FOUND")
-#     # include_directories(${OpenGL_INCLUDE_DIRS})
-#     # message(STATUS  ${OpenGL_INCLUDE_DIRS})
+foreach(SUB_DIRx ${CPP_DIR})
+    message(STATUS "---Sub Dir: ${SUB_DIR}")
 
-#     # link_directories(${OpenGL_LIBRARY_DIRS})
-#     # message(STATUS  ${OpenGL_LIBRARY_DIRS})
+    file(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/${SUB_DIR}/*.cpp")
+    message(STATUS "---all cpp: ${SRC}")
 
-#     # target_link_libraries(tinyCAD ${OpenGL_LIBRARIES})
-#     # message(STATUS  ${OpenGL_LIBRARIES}) 
-    
-#     # add_definitions(${OpenGL_DEFINITIONS})
-#     target_link_libraries(tinyCAD GL)
-#     target_link_libraries(tinyCAD openGL)
-# endif(OpenGL_FOUND)
+    foreach(CPP ${SRC})
+        message(STATUS "---Create Exe From: ${CPP}")
 
-# ################################################################
-# if(WIN32)
-#     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-#     # set_target_properties(GLAD PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/")
-#     # set_target_properties(GLAD PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/bin//Debug")
-# elseif(UNIX AND NOT APPLE)
-#     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-# elseif(APPLE)
-#     set_target_properties(GLAD PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/")
-#     set_target_properties(GLAD PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/bin/")
-#     set_target_properties(GLAD PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/bin/")
-# endif(WIN32)
+        STRING(REGEX REPLACE ".+/(.+)\\..*" "\\1" FILE_NAME ${CPP})
+        MESSAGE(" --- FILE_NAME"  ${FILE_NAME})
 
-################################################################
-# #GLAD
-# # add_subdirectory(./3rd/glad)
-# include_directories(${CMAKE_SOURCE_DIR}/includes)
-# add_library(GLAD ${CMAKE_SOURCE_DIR}/3rd/glad/glad.c)
-# target_include_directories(GLAD PRIVATE ${CMAKE_SOURCE_DIR}/3rd/)
-# set(LIBS ${LIBS} GLAD)
+        add_executable(OpoenGL_${FILE_NAME} ${CPP})
+        list(APPEND EXE_LIST OpoenGL_${FILE_NAME})
+    endforeach(CPP)    
+
+endforeach(SUB_DIR)
+
 
 find_package(glfw3 CONFIG REQUIRED)
-# find_package(glfw3 REQUIRED)
 if(glfw3_FOUND)
     message(STATUS  " -----glfw3_FOUND")
-    target_link_libraries(dashedLine glfw)
+    
+    foreach(exe ${EXE_LIST})
+        target_link_libraries(${exe} glfw)
+    endforeach(exe ${EXE_LIST})
+
 endif()
 
 find_package(GLEW REQUIRED)
 if (GLEW_FOUND)
     message(STATUS  " -----GLEW_FOUND")
-    target_link_libraries(dashedLine ${GLEW_LIBRARIES})
+    
+    foreach(exe ${EXE_LIST})
+        target_link_libraries(${exe} ${GLEW_LIBRARIES})
+    endforeach(exe ${EXE_LIST})
 endif()
 
 ################################################################
-target_link_libraries(dashedLine GLAD)
+foreach(exe ${EXE_LIST})
+    target_link_libraries(${exe} GLAD)
+endforeach(exe ${EXE_LIST})
 
 ################################################################
 if(WIN32)
@@ -68,7 +58,9 @@ elseif(APPLE)
 endif(WIN32)
 
 ################################################################
-# function(create_project_from_sources chapter demo)
-
 include_directories(${CMAKE_SOURCE_DIR}/includes)
-target_include_directories(dashedLine PRIVATE ${CMAKE_SOURCE_DIR}/3rd)
+
+foreach(exe ${EXE_LIST})
+    target_include_directories(${exe} PRIVATE ${CMAKE_SOURCE_DIR}/3rd)
+endforeach(exe ${EXE_LIST})
+
