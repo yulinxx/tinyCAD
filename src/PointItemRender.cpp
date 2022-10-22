@@ -24,7 +24,9 @@ void PointItemRender::render()
 {
     Render::render(m_pItem->m_matProj, m_pItem->m_matView, m_pItem->m_matModel, m_pItem->m_v4Color);
 
-    m_pShader->setInt("ptsize", m_pItem->m_nPtSize);
+    // 设置点大小 二选一
+    m_pShader->setFloat("ptsize", m_pItem->m_dItemW);
+    // glPointSize(m_pItem->m_dPtSize);
 
     glDrawArrays(GL_POINTS, 0, GLsizei(1));
 }

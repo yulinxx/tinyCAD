@@ -35,7 +35,7 @@ void PointItem::setColor(glm::vec4& vColor)
     m_v4Color = vColor;
 }
 
-void PointItem::setPtSize(int nPtSize)
+void PointItem::setPtSize(float dPtSize)
 {
-    m_nPtSize = nPtSize;
+    m_dItemW = dPtSize;
 }

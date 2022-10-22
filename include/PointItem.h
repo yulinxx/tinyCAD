@@ -19,12 +19,10 @@ public:
     virtual void setColor(glm::vec4& vColor) override;
 
 public:    
-    void setPtSize(int nPtSize);
+    void setPtSize(float dPtSize);
 
 public:
     Pt m_pt;
-    int m_nPtSize = 5;
-    
 
 private:
     Render* m_pRender = nullptr;
