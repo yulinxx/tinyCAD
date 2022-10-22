@@ -14,6 +14,6 @@ void main()
     vec4 pos = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
     gl_Position = pos;
 
-    vertPos     = pos.xyz / pos.w;
-    startPos    = vertPos;
+    startPos    = pos.xyz / pos.w;
+    vertPos     = startPos;
 }
