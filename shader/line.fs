@@ -10,7 +10,7 @@ uniform float scatter_size = 0.2;
 
 uniform vec4 color = vec4(1.0f, 0.1f, 0.0f, 1.0f);
 
-
+// 绘制虚线：以线段一端为起点，线上任意一点到起点距离取模，alpha 0~1交替出现就成了虚线
 float getShadow(vec3 pos) {
     vec4 p = camera * vec4(pos, 1.0);
     p.xyz /= p.w;
