@@ -23,8 +23,8 @@ RulerItemRender::~RulerItemRender()
 void RulerItemRender::render()
 {
     Render::render(m_pItem->m_matProj, m_pItem->m_matView, m_pItem->m_matModel, m_pItem->m_v4Color);
-    glDrawArrays(GL_LINES, 0, GLsizei(m_pItem->m_pts.size()));
     glLineWidth(m_pItem->m_dItemW);
+    glDrawArrays(GL_LINES, 0, GLsizei(m_pItem->m_pts.size()));
 }
 
 void RulerItemRender::updateData()

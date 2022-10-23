@@ -23,6 +23,7 @@ RectSelItemRender::~RectSelItemRender()
 void RectSelItemRender::render()
 {
     Render::render(m_pItem->m_matProj, m_pItem->m_matView, m_pItem->m_matModel, m_pItem->m_v4Color);
+    glLineWidth(m_pItem->m_dItemW);
     glDrawArrays(GL_LINE_STRIP, 0, GLsizei(m_pItem->m_pts.size()));
 }
 

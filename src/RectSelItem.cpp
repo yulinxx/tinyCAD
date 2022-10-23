@@ -15,7 +15,8 @@ RectSelItem::~RectSelItem()
 
 void RectSelItem::render()
 {
-    m_pRender->render();
+    if(m_pts.size() > 1)
+        m_pRender->render();
 }
 
 

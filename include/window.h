@@ -70,8 +70,8 @@ private:
    std::vector<Item*> m_vecItems; 
    bool m_bNewItem = false;
 
-    Item* m_pNewItem = nullptr;
-    Item* m_pSelItem = nullptr;
+    Item* m_pNewItem = nullptr; // 新建对象
+    Item* m_pSelItem = nullptr; // 选择框对象
 
     Item* m_pRuler = nullptr;  // 标尺
 

@@ -182,17 +182,18 @@ bool Window::initWnd(int w, int h, std::string& strName)
     return true;
 }
 
+// Loop Render
 bool Window::run()
 {
     // 边框測試
+    LineItem* pTempRectItem = new LineItem();
     if(1)
     {
-     LineItem *pLineItem = new LineItem();
-     m_vecItems.emplace_back(pLineItem);
-     pLineItem->addPt(Pt(-600, -400));
-     pLineItem->addPt(Pt(-600, 400));
-     pLineItem->addPt(Pt(600, 400));
-     pLineItem->addPt(Pt(600, -400));
+     m_vecItems.emplace_back(pTempRectItem);
+     pTempRectItem->addPt(Pt(-600, -400));
+     pTempRectItem->addPt(Pt(-600, 400));
+     pTempRectItem->addPt(Pt(600, 400));
+     pTempRectItem->addPt(Pt(600, -400));
      // pLineItem->addPt(Pt(-600, -400));
 
      std::default_random_engine e(time(0));
@@ -201,15 +202,15 @@ bool Window::run()
      std::uniform_real_distribution<double> uA(0, 20);
 
      int nW = uW(e);
-     pLineItem->setLineWidth(nW);
+     pTempRectItem->setLineWidth(nW);
 
      unsigned int nP = u(e);
-     pLineItem->setPattern(nP);
+     pTempRectItem->setPattern(nP);
 
      float dF = uA(e);
-     pLineItem->setFactor(dF);
-     pLineItem->setResolution(Pt(m_dWndW, m_dWndH));
-     pLineItem->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+     pTempRectItem->setFactor(dF);
+     pTempRectItem->setResolution(Pt(m_dWndW, m_dWndH));
+     pTempRectItem->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
      std::cout << "--- line W: " << nW << " Pattern" << nP << " Factor" << dF << std::endl;
     }
@@ -233,6 +234,7 @@ bool Window::run()
     // // 混合,带透明色
     // glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_DEPTH_TEST); // 深圳测试
 
     // render loop
     while (!glfwWindowShouldClose(m_pWnd))
@@ -243,16 +245,10 @@ bool Window::run()
         // std::cout<<m_dDeltaTime<<std::endl;
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // glm::perspective(float fovy, float aspect, float zNear, float zFar);
         glm::mat4 projection = glm::perspective(glm::radians(m_pCamera->m_dZoom), 
                     float(m_dWndW / m_dWndH), 0.1f, 9000.0f);
-
-        // glm::ortho(float left, float right, float bottom, float top, float zNear, float zFar); 
-        // glm::mat4 projection = glm::ortho(-m_nWndW / 2, m_nWndW / 2, -m_dWndH / 2, m_dWndH / 2, 1, 100);
-        // glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
 
         glm::mat4 view = m_pCamera->GetViewMatrix();
 
@@ -263,14 +259,10 @@ bool Window::run()
                setRender(item, projection, view, glm::mat4(1.0f));
         }
 
-        if(m_pNewItem)
-            setRender(m_pNewItem, projection, view, glm::mat4(1.0f));
-
-        if(m_pSelItem)
-            setRender(m_pSelItem, projection, view, glm::mat4(1.0f));
-
-        if(m_pRuler)
-            setRender(m_pRuler, projection, view, glm::mat4(1.0f));
+        setRender(pTempRectItem, projection, view, glm::mat4(1.0f));
+        setRender(m_pNewItem, projection, view, glm::mat4(1.0f));
+        setRender(m_pSelItem, projection, view, glm::mat4(1.0f));
+        setRender(m_pRuler, projection, view, glm::mat4(1.0f));
 
         glfwSwapBuffers(m_pWnd);
         glfwPollEvents();

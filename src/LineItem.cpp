@@ -14,7 +14,8 @@ LineItem::~LineItem()
 
 void LineItem::render()
 {
-    m_pRender->render();
+    if(m_pts.size() > 0)
+        m_pRender->render();
 }
 
 
@@ -33,7 +34,7 @@ void LineItem::addPt(Pt& pt)
 void LineItem::setLineWidth(int nW)
 {
     m_dItemW = nW;
-    m_pRender->updateData();
+    // m_pRender->updateData();
 }
 void LineItem::setColor(glm::vec4& vColor)
 {
