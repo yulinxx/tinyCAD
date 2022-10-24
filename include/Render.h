@@ -27,10 +27,12 @@ public:
 
 public:
     Shader* m_pShader = nullptr;
-    unsigned int m_nShaderID = -1;
+    unsigned int m_nShaderID = 0;
 
-    unsigned int m_nVAO = -1;
-    unsigned int m_nVBO = -1;
+    unsigned int m_nVAO = 0;
+    unsigned int m_nVBO = 0;
+
+    unsigned int m_nEBO = 0;
 };
 
 #endif //_RENDER_H

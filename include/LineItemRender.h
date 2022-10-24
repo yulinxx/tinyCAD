@@ -18,6 +18,8 @@ public:
 
 private:
     LineItem* m_pItem = nullptr;
+
+    
 };
 
 #endif //_LINE_ITEM_RENDER_H
