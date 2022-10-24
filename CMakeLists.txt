@@ -66,6 +66,10 @@ target_include_directories(GLAD PRIVATE ${CMAKE_SOURCE_DIR}/3rd/)
 set(LIBS ${LIBS} GLAD)
 target_link_libraries(${APP_NAME}  GLAD)
 
+add_library(STB_IMAGE ${CMAKE_SOURCE_DIR}/3rd/stb_image.cpp)
+set(LIBS ${LIBS} STB_IMAGE)
+target_link_libraries(${APP_NAME}  STB_IMAGE)
+
 ################### GLFW3 #################################
 find_package(glfw3 CONFIG REQUIRED)
 # find_package(glfw3 REQUIRED)
