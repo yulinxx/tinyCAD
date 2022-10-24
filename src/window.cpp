@@ -17,6 +17,7 @@
 #include "LineItem.h"
 #include "RectSelItem.h"
 #include "RulerItem.h"
+#include "ImgItem.h"
 
 #include "DataDefine.h"
 
@@ -197,8 +198,8 @@ bool Window::run()
      // pLineItem->addPt(Pt(-600, -400));
 
      std::default_random_engine e(time(0));
-     std::uniform_int_distribution<int> uW(1, 10);
-     std::uniform_int_distribution<int> u(1, 0x0fff);
+     std::uniform_int_distribution<int> uW(1, 6);
+     std::uniform_int_distribution<int> u(1, 0xffff);
      std::uniform_real_distribution<double> uA(0, 20);
 
      int nW = uW(e);
@@ -208,7 +209,8 @@ bool Window::run()
      pTempRectItem->setPattern(nP);
 
      float dF = uA(e);
-     pTempRectItem->setFactor(dF);
+    //  pTempRectItem->setFactor(dF);
+     pTempRectItem->setFactor(1.0);
      pTempRectItem->setResolution(Pt(m_dWndW, m_dWndH));
      pTempRectItem->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
@@ -237,6 +239,9 @@ bool Window::run()
     glEnable(GL_DEPTH_TEST); // 深圳测试
 
     // render loop
+    unsigned int nP = 0x000f;
+    int i = 0;
+
     while (!glfwWindowShouldClose(m_pWnd))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -258,6 +263,15 @@ bool Window::run()
             for (const auto &item : m_vecItems)
                setRender(item, projection, view, glm::mat4(1.0f));
         }
+
+        // if(i++ > 60)
+        // {
+        //     pTempRectItem->setPattern(nP++);
+        //     i = 0;
+        // }
+
+        // if(nP > 0xefff)
+        //     nP = 0x000f;
 
         setRender(pTempRectItem, projection, view, glm::mat4(1.0f));
         setRender(m_pNewItem, projection, view, glm::mat4(1.0f));
@@ -302,6 +316,9 @@ void Window::keyPressEvent(KeyPressEvent& e)
     }
     else if (e.m_nKey == GLFW_KEY_M)
     {
+        ImgItem* pNewItem = new ImgItem();
+        pNewItem->addPt(screen2GLPt(m_pt));
+        m_vecItems.emplace_back(pNewItem);
     }
     else if (e.m_nKey == GLFW_KEY_N)
     {
