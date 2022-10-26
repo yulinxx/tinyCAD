@@ -223,9 +223,13 @@ bool Window::run()
         if(!pItem)
             return;
 
+        // pItem->m_matProj = glm::mat4(1.0f);
+        // pItem->m_matView = glm::mat4(1.0f);
+        // pItem->m_matModel = glm::mat4(1.0f);
         pItem->m_matProj = matProj;
         pItem->m_matView = matView;
         pItem->m_matModel = matModel;
+
         pItem->render();
     };
 
@@ -316,6 +320,8 @@ void Window::keyPressEvent(KeyPressEvent& e)
     }
     else if (e.m_nKey == GLFW_KEY_M)
     {
+        auto ptIns = screen2GLPt(m_pt);
+        std::cout << "Insert Image at: x" << ptIns.x << " y:" << ptIns.y << std::endl;
         ImgItem* pNewItem = new ImgItem();
         pNewItem->addPt(screen2GLPt(m_pt));
         m_vecItems.emplace_back(pNewItem);

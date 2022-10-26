@@ -47,6 +47,16 @@ void ImgItem::SetImagePath(int w, int h)
     m_pts.emplace_back(Pt{nX + w, nY});
     m_pts.emplace_back(Pt{nX + w, nY + h});
     m_pts.emplace_back(Pt{nX, nY + h});
+
+    // m_pts.clear();
+    // // m_pts.emplace_back(Pt{-1, -1});
+    // // m_pts.emplace_back(Pt{1, -1});
+    // // m_pts.emplace_back(Pt{1, 1});
+    // // m_pts.emplace_back(Pt{-1, 1});
+    // m_pts.emplace_back(Pt{-0.5, -0.5});
+    // m_pts.emplace_back(Pt{0.5, -0.5});
+    // m_pts.emplace_back(Pt{0.5, 0.5});
+    // m_pts.emplace_back(Pt{-0.5, 0.5});
 }
 
 // void ImgItem::setPtSize(float dPtSize)

@@ -23,6 +23,7 @@ private:
     ImgItem* m_pItem = nullptr;
     unsigned int m_nTexture = 0;
 
+    // std::string m_strImgPath = "E:/Project/tinyCAD/res/container.jpg";
     std::string m_strImgPath = "E:/Project/tinyCAD/res/test.jpg";
 };
 

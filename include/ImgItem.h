@@ -24,6 +24,7 @@ public:
 
 public:
     LinePts m_pts;
+    LinePts m_ptsTexture{{0,0},{1,0},{1,1},{0,1}};
 
 private:
     Render* m_pRender = nullptr;
