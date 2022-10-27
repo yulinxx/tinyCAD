@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.0.0)
 
+# 使用vcpkg进行包管理
 if(WIN32)
-    # 使用vcpkg进行包管理
     set(VCPKG_PATH D:/Install/vcpkg/scripts/buildsystems/vcpkg.cmake)
-    set(CMAKE_TOOLCHAIN_FILE  ${VCPKG_PATH})
+elseif(UNIX AND NOT APPLE)
+    set(VCPKG_PATH /home/x/install/vcpkg//scripts/buildsystems/vcpkg.cmake)
+elseif(APPLE)
 endif(WIN32)
+
+set(CMAKE_TOOLCHAIN_FILE  ${VCPKG_PATH})
 
 project(tinyCAD VERSION 0.1.0)
 
