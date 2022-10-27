@@ -24,13 +24,13 @@ void PointItem::render()
     m_pRender->render();
 }
 
-void PointItem::addPt(Pt& pt)
+void PointItem::addPt(Pt pt)
 {
     m_pt = pt;
     m_pRender->updateData();
 }
 
-void PointItem::setColor(glm::vec4& vColor)
+void PointItem::setColor(glm::vec4 vColor)
 {
     m_v4Color = vColor;
 }

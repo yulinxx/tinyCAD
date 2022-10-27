@@ -2,7 +2,7 @@
 #define _DATA_DEFINE_H_
 
 #include <vector>
-
+#include <math.h>
 struct Pt
 {
     Pt(){}

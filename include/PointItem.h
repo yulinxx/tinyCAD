@@ -15,8 +15,8 @@ public:
 
 public:
     virtual void render() override;
-    virtual void addPt(Pt& pt) override;
-    virtual void setColor(glm::vec4& vColor) override;
+    virtual void addPt(Pt pt) override;
+    virtual void setColor(glm::vec4 vColor) override;
 
 public:    
     void setPtSize(float dPtSize);

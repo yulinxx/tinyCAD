@@ -24,10 +24,10 @@ public:
 
 public:
     virtual void render() = 0;
-    virtual void addPt(Pt& pt) {}
+    virtual void addPt(Pt pt) {}
     virtual void clear(){}
 
-    virtual void setColor(glm::vec4& vColor) = 0;
+    virtual void setColor(glm::vec4 vColor) = 0;
 
     void setIsSelect(bool bSel = true){
         bSel? m_bitFlag.set(E_Sel) : m_bitFlag.reset(E_Sel);

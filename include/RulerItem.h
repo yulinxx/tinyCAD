@@ -14,7 +14,7 @@ public:
 
 public:
     virtual void render() override;
-    virtual void setColor(glm::vec4& vColor) override;
+    virtual void setColor(glm::vec4 vColor) override;
 
     void initPt(double dWndW = 1200, double dWndH = 800);
 
