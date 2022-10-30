@@ -8,13 +8,13 @@ ImgItemRender::ImgItemRender(ImgItem* item)
 {
     if(!m_pShader)
     {
-        // m_pShader = new Shader("image.vs", "image.fs");
-        m_pShader = new Shader("ruler.vs", "ruler.fs");
+        m_pShader = new Shader("image.vs", "image.fs");
         m_nShaderID = m_pShader->ID;
     }
 
     glGenVertexArrays(1, &m_nVAO);
     glGenBuffers(1, &m_nVBO);
+    glGenBuffers(1, &m_nVBO2);
     glGenBuffers(1, &m_nEBO);
 }
 
@@ -34,6 +34,8 @@ void ImgItemRender::render()
 
     // glBindTexture(GL_TEXTURE_2D, m_nTexture);
     glBindVertexArray(m_nVAO);
+
+    glLineWidth(m_pItem->m_dItemW);
 
     // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glDrawElements(GL_LINE_LOOP, 6, GL_UNSIGNED_INT, 0);
@@ -59,37 +61,42 @@ void ImgItemRender::updateData()
 
     glBindVertexArray(m_nVAO);  
     glBindBuffer(GL_ARRAY_BUFFER, m_nVBO);
+
     glBufferData(GL_ARRAY_BUFFER, m_pItem->m_pts.size() * sizeof(Pt), &m_pItem->m_pts[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
 
-    // m_pItem->m_ptsTexture.clear();
-    // m_pItem->m_ptsTexture.emplace_back(Pt{0, 0});
-    // m_pItem->m_ptsTexture.emplace_back(Pt{1, 0});
-    // m_pItem->m_ptsTexture.emplace_back(Pt{1, 1});
-    // m_pItem->m_ptsTexture.emplace_back(Pt{0, 1});
+    m_pItem->m_ptsTexture.clear();
+    m_pItem->m_ptsTexture.emplace_back(Pt{0, 0});
+    m_pItem->m_ptsTexture.emplace_back(Pt{1, 0});
+    m_pItem->m_ptsTexture.emplace_back(Pt{1, 1});
+    m_pItem->m_ptsTexture.emplace_back(Pt{0, 1});
     
-    // glBufferData(GL_ARRAY_BUFFER, m_pItem->m_ptsTexture.size() * sizeof(Pt), &m_pItem->m_ptsTexture[0], GL_STATIC_DRAW);
-    // glVertexAttribPointer(1, 2, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
+    auto na = m_pItem->m_ptsTexture.size() ;
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_nVBO2);
+    glBufferData(GL_ARRAY_BUFFER, m_pItem->m_ptsTexture.size() * sizeof(Pt), &m_pItem->m_ptsTexture[0], GL_STATIC_DRAW);
+    // glBufferData(GL_ARRAY_BUFFER, m_pItem->m_pts.size() * sizeof(Pt), &m_pItem->m_pts[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
 
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_nEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
  
-    // glGenTextures(1, &m_nTexture);
-    // glBindTexture(GL_TEXTURE_2D, m_nTexture);
+    glGenTextures(1, &m_nTexture);
+    glBindTexture(GL_TEXTURE_2D, m_nTexture);
 
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
-    // if(nChannels == 4)
-    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nW, nH, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    // else
-    //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nW, nH, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    if(nChannels == 4)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nW, nH, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    else
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nW, nH, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         
-    // glGenerateMipmap(GL_TEXTURE_2D);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
 
     glEnableVertexAttribArray(0);

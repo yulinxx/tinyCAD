@@ -32,6 +32,7 @@ public:
     unsigned int m_nVAO = 0;
     unsigned int m_nVBO = 0;
 
+    unsigned int m_nVBO2 = 0;
     unsigned int m_nEBO = 0;
 };
 
