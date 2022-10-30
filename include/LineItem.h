@@ -18,7 +18,7 @@ public:
     virtual void setColor(glm::vec4 vColor) override;
 
 public:
-    void setLineWidth(int nW);
+    void setLineWidth(double dW);
     void setResolution(Pt pt);
     void setPattern(unsigned int nPattern);
     void setFactor(float dFactor);

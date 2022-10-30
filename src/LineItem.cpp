@@ -37,9 +37,9 @@ void LineItem::addPt(Pt pt)
     m_pRender->updateData();
 }
 
-void LineItem::setLineWidth(int nW)
+void LineItem::setLineWidth(double dW)
 {
-    m_dItemW = nW;
+    m_dItemW = dW;
     // m_pRender->updateData();
 }
 void LineItem::setColor(glm::vec4 vColor)

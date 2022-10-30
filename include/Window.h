@@ -80,7 +80,7 @@ private:
     Pt      m_pt;
     Pt      m_ptFirst; // 记录鼠标的第一点(GL坐标点)
 
-    float m_dDeltaTime = 0.0f;
+    double m_dDeltaTime = 0.0f;
 
     Camera* m_pCamera = nullptr;
 

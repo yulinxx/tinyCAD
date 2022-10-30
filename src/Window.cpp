@@ -84,7 +84,7 @@ bool Window::initWnd(int w, int h, std::string& strName)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    m_pWnd = glfwCreateWindow(m_dWndW, m_dWndH, strName.c_str(), nullptr, nullptr);
+    m_pWnd = glfwCreateWindow((int)m_dWndW, (int)m_dWndH, strName.c_str(), nullptr, nullptr);
     if (m_pWnd == nullptr)
     {
         std::cout << "Failed to create GLFW Window" << std::endl;
@@ -197,7 +197,7 @@ bool Window::run()
      pTempRectItem->addPt(Pt(600, -400));
      // pLineItem->addPt(Pt(-600, -400));
 
-     std::default_random_engine e(time(0));
+     std::default_random_engine e((unsigned int)time(0));
      std::uniform_int_distribution<int> uW(1, 6);
      std::uniform_int_distribution<int> u(1, 0xffff);
      std::uniform_real_distribution<double> uA(0, 20);
@@ -208,7 +208,7 @@ bool Window::run()
      unsigned int nP = u(e);
      pTempRectItem->setPattern(nP);
 
-     float dF = uA(e);
+     double dF = uA(e);
     //  pTempRectItem->setFactor(dF);
      pTempRectItem->setFactor(1.0);
      pTempRectItem->setResolution(Pt(m_dWndW, m_dWndH));
@@ -217,7 +217,7 @@ bool Window::run()
      std::cout << "--- line W: " << nW << " Pattern" << nP << " Factor" << dF << std::endl;
     }
 
-    float lastFrame = 0.0f;
+    double lastFrame = 0.0f;
 
    auto setRender = [](Item* pItem, glm::mat4& matProj, glm::mat4 matView, glm::mat4 matModel){
         if(!pItem)
@@ -304,19 +304,19 @@ void Window::keyPressEvent(KeyPressEvent& e)
     float cameraSpeed = static_cast<float>(2.5 * m_dDeltaTime);
     if (e.m_nKey == GLFW_KEY_W)
     {
-        m_pCamera->ProcessKeyboard(Camera_Movement::FORWARD, m_dDeltaTime);
+        m_pCamera->ProcessKeyboard(Camera_Movement::FORWARD, (float)m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_S)
     {
-        m_pCamera->ProcessKeyboard(Camera_Movement::BACKWARD, m_dDeltaTime);
+        m_pCamera->ProcessKeyboard(Camera_Movement::BACKWARD, (float)m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_A)
     {
-        m_pCamera->ProcessKeyboard(Camera_Movement::LEFT, m_dDeltaTime);
+        m_pCamera->ProcessKeyboard(Camera_Movement::LEFT, (float)m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_D)
     {
-        m_pCamera->ProcessKeyboard(Camera_Movement::RIGHT, m_dDeltaTime);
+        m_pCamera->ProcessKeyboard(Camera_Movement::RIGHT, (float)m_dDeltaTime);
     }
     else if (e.m_nKey == GLFW_KEY_M)
     {
@@ -414,7 +414,7 @@ void Window::mousePressEvent(MousePressEvent& e)
                 m_pNewItem = new LineItem();
     
                 LineItem *pLineItem = static_cast<LineItem *>(m_pNewItem);
-                std::default_random_engine e(time(0));
+                std::default_random_engine e((unsigned int)time(0));
                 std::uniform_int_distribution<int> uW(1, 10);
                 std::uniform_int_distribution<int> u(1, 0x0fff);
                 std::uniform_real_distribution<double> uA(0, 20);
@@ -425,8 +425,8 @@ void Window::mousePressEvent(MousePressEvent& e)
                 unsigned int nP = u(e);
                 pLineItem->setPattern(nP);
 
-                float dF = uA(e);
-                pLineItem->setFactor(dF);
+                double dF = uA(e);
+                pLineItem->setFactor((float)dF);
                 pLineItem->setResolution(Pt(m_dWndW, m_dWndH));
                 pLineItem->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
@@ -480,12 +480,12 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
             {
                 PointItem* ptItem = new PointItem(pt);
 
-                std::default_random_engine e(time(0));
+                std::default_random_engine e((unsigned int)time(0));
                 std::uniform_real_distribution<double >uA(1,10);
                 std::uniform_real_distribution<double >uB(0,1);
 
-                float dSz = uA(e);
-                ptItem->setPtSize(dSz);
+                double dSz = uA(e);
+                ptItem->setPtSize((float)dSz);
                 std::cout<<" Pt Size:"<< dSz << std::endl;
                 ptItem->setColor(glm::vec4(uB(e), uB(e), uB(e), 1.0));
 
