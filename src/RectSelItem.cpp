@@ -20,7 +20,7 @@ void RectSelItem::render()
 }
 
 
-void RectSelItem::addPt(Pt& pt)
+void RectSelItem::addPt(Pt pt)
 {
     if(m_pts.empty())
         m_ptFirst = pt;
@@ -54,7 +54,7 @@ void RectSelItem::clear()
     m_pts.reserve(2);
 }
 
-void RectSelItem::setColor(glm::vec4& vColor)
+void RectSelItem::setColor(glm::vec4 vColor)
 {
     // m_pRender->setColor(vColor);
     m_v4Color = vColor;

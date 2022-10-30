@@ -191,7 +191,7 @@ bool Window::run()
     if(1)
     {
      m_vecItems.emplace_back(pTempRectItem);
-     pTempRectItem->addPt(Pt(-600, -400));
+     pTempRectItem->addPt(std::move(Pt(-600, -400)));
      pTempRectItem->addPt(Pt(-600, 400));
      pTempRectItem->addPt(Pt(600, 400));
      pTempRectItem->addPt(Pt(600, -400));
@@ -219,7 +219,7 @@ bool Window::run()
 
     float lastFrame = 0.0f;
 
-    auto setRender = [](Item* pItem, glm::mat4& matProj, glm::mat4& matView, glm::mat4& matModel){
+   auto setRender = [](Item* pItem, glm::mat4& matProj, glm::mat4 matView, glm::mat4 matModel){
         if(!pItem)
             return;
 

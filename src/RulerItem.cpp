@@ -58,7 +58,7 @@ void RulerItem::initPt(double dWndW /*=1200*/, double dWndH /*=800*/)
     m_pRender->updateData();
 }
 
-void RulerItem::setColor(glm::vec4& vColor)
+void RulerItem::setColor(glm::vec4 vColor)
 {
     // m_pRender->setColor(vColor);
     m_v4Color = vColor;

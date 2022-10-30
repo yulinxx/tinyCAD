@@ -19,14 +19,14 @@ void ImgItem::render()
     m_pRender->render();
 }
 
-void ImgItem::addPt(Pt& pt)
+void ImgItem::addPt(Pt pt)
 {
     m_pts.clear();
     m_pts.emplace_back(pt);
     m_pRender->updateData();
 }
 
-void ImgItem::setColor(glm::vec4& vColor)
+void ImgItem::setColor(glm::vec4 vColor)
 {
     m_v4Color = vColor;
 }
