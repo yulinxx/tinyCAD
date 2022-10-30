@@ -24,7 +24,7 @@ private:
     unsigned int m_nTexture = 0;
 
     // std::string m_strImgPath = "E:/Project/tinyCAD/res/container.jpg";
-    std::string m_strImgPath = "E:/Project/tinyCAD/res/test.jpg";
+    std::string m_strImgPath = "E:/Project/tinyCAD/res/container.jpg";
 };
 
 #endif //_IMG_ITEM_RENDER_H
