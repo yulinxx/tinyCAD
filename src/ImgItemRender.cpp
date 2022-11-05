@@ -37,8 +37,8 @@ void ImgItemRender::render()
 
     glLineWidth(m_pItem->m_dItemW);
 
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glDrawElements(GL_LINE_LOOP, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    // glDrawElements(GL_LINE_LOOP, 6, GL_UNSIGNED_INT, 0);
     // glDrawElements(GL_LINE_LOOP, 6, GL_UNSIGNED_INT, 0);
 
     // glDrawArrays(GL_LINE_LOOP, 0, GLsizei(m_pItem->m_pts.size()));
@@ -64,6 +64,8 @@ void ImgItemRender::updateData()
 
     glBufferData(GL_ARRAY_BUFFER, m_pItem->m_pts.size() * sizeof(Pt), &m_pItem->m_pts[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
+    
+    glEnableVertexAttribArray(0);
 
     m_pItem->m_ptsTexture.clear();
     m_pItem->m_ptsTexture.emplace_back(Pt{0, 0});
@@ -71,12 +73,17 @@ void ImgItemRender::updateData()
     m_pItem->m_ptsTexture.emplace_back(Pt{1, 1});
     m_pItem->m_ptsTexture.emplace_back(Pt{0, 1});
     
+    // m_pItem->m_ptsTexture.emplace_back(Pt{0, 0});
+    // m_pItem->m_ptsTexture.emplace_back(Pt{1, 0});
+    // m_pItem->m_ptsTexture.emplace_back(Pt{0.5, 0.5});
+
     auto na = m_pItem->m_ptsTexture.size() ;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_nVBO2);
     glBufferData(GL_ARRAY_BUFFER, m_pItem->m_ptsTexture.size() * sizeof(Pt), &m_pItem->m_ptsTexture[0], GL_STATIC_DRAW);
     // glBufferData(GL_ARRAY_BUFFER, m_pItem->m_pts.size() * sizeof(Pt), &m_pItem->m_pts[0], GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
+    glEnableVertexAttribArray(1);
 
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_nEBO);
@@ -99,7 +106,7 @@ void ImgItemRender::updateData()
     glGenerateMipmap(GL_TEXTURE_2D);
 
 
-    glEnableVertexAttribArray(0);
+    // glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0); 
