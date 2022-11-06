@@ -39,15 +39,12 @@ void ImgItemRender::render()
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     // glDrawElements(GL_LINE_LOOP, 6, GL_UNSIGNED_INT, 0);
-    // glDrawElements(GL_LINE_LOOP, 6, GL_UNSIGNED_INT, 0);
-
-    // glDrawArrays(GL_LINE_LOOP, 0, GLsizei(m_pItem->m_pts.size()));
 }
 
 void ImgItemRender::updateData()
 {
     int nW, nH, nChannels;
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(true); // Y轴反转
     unsigned char *data = stbi_load(m_strImgPath.c_str(), &nW, &nH, &nChannels, 0);
     if(!data)
         return;
@@ -60,32 +57,27 @@ void ImgItemRender::updateData()
     };
 
     glBindVertexArray(m_nVAO);  
-    glBindBuffer(GL_ARRAY_BUFFER, m_nVBO);
 
+    // 顶点 使用glVertexAttribPointer函数告诉OpenGL该如何解析顶点数据 每个顶点属性从一个VBO管理的内存中获得它的数据
+    glBindBuffer(GL_ARRAY_BUFFER, m_nVBO);
     glBufferData(GL_ARRAY_BUFFER, m_pItem->m_pts.size() * sizeof(Pt), &m_pItem->m_pts[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
-    
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(0);   // 启用顶点属性
 
+    // 纹理采样坐标, 对整个图片进行采样
     m_pItem->m_ptsTexture.clear();
     m_pItem->m_ptsTexture.emplace_back(Pt{0, 0});
     m_pItem->m_ptsTexture.emplace_back(Pt{1, 0});
     m_pItem->m_ptsTexture.emplace_back(Pt{1, 1});
     m_pItem->m_ptsTexture.emplace_back(Pt{0, 1});
-    
-    // m_pItem->m_ptsTexture.emplace_back(Pt{0, 0});
-    // m_pItem->m_ptsTexture.emplace_back(Pt{1, 0});
-    // m_pItem->m_ptsTexture.emplace_back(Pt{0.5, 0.5});
-
-    auto na = m_pItem->m_ptsTexture.size() ;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_nVBO2);
     glBufferData(GL_ARRAY_BUFFER, m_pItem->m_ptsTexture.size() * sizeof(Pt), &m_pItem->m_ptsTexture[0], GL_STATIC_DRAW);
-    // glBufferData(GL_ARRAY_BUFFER, m_pItem->m_pts.size() * sizeof(Pt), &m_pItem->m_pts[0], GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_DOUBLE, GL_FALSE, sizeof(Pt), (void*)0);
     glEnableVertexAttribArray(1);
 
 
+    // 索引
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_nEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -111,5 +103,5 @@ void ImgItemRender::updateData()
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0); 
 
-    // stbi_image_free(data);
+    stbi_image_free(data);
 }
