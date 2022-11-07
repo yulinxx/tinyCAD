@@ -223,9 +223,6 @@ bool Window::run()
         if(!pItem)
             return;
 
-        // pItem->m_matProj = glm::mat4(1.0f);
-        // pItem->m_matView = glm::mat4(1.0f);
-        // pItem->m_matModel = glm::mat4(1.0f);
         pItem->m_matProj = matProj;
         pItem->m_matView = matView;
         pItem->m_matModel = matModel;
@@ -320,10 +317,10 @@ void Window::keyPressEvent(KeyPressEvent& e)
     }
     else if (e.m_nKey == GLFW_KEY_M)
     {
-        auto ptIns = screen2GLPt(m_pt);
+        auto ptIns = m_ptCur;
         std::cout << "Insert Image at: x" << ptIns.x << " y:" << ptIns.y << std::endl;
         ImgItem* pNewItem = new ImgItem();
-        pNewItem->addPt(screen2GLPt(m_pt));
+        pNewItem->addPt(m_ptCur);
         m_vecItems.emplace_back(pNewItem);
     }
     else if (e.m_nKey == GLFW_KEY_N)
@@ -363,7 +360,8 @@ void Window::keyPressEvent(KeyPressEvent& e)
             m_pNewItem = nullptr;
         }
 
-        m_bSel = false;
+        // m_bSel = false;
+        m_bitFlags.reset(0);
     }
 }
 
@@ -432,23 +430,23 @@ void Window::mousePressEvent(MousePressEvent& e)
 
                 std::cout << "--- line W: " << nW << " Pattern" << nP << " Factor" << dF << std::endl;
             }
-            m_pNewItem->addPt( screen2GLPt(m_pt) );
+            m_pNewItem->addPt( m_ptCur );
 
-            std::cout << " Left X: " << m_pt.x << " / " << (m_pt.x - m_dWndW / 2) << " \t"
-                      << " Y: " << m_pt.y << " / " << (-m_pt.y + m_dWndH / 2) << std::endl;
+            std::cout << " Left X: " << m_ptCur.x << " / " << (m_ptCur.x - m_dWndW / 2) << " \t"
+                      << " Y: " << m_ptCur.y << " / " << (-m_ptCur.y + m_dWndH / 2) << std::endl;
         }        
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
-        addNewItem(); 
-        m_ptFirst = screen2GLPt(m_pt); 
+        m_ptFirst = m_ptCur; 
+        m_ptFirstX = m_ptCurX; 
+        m_bitFlags.set(1);
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
         {
             addNewItem();
 
-            m_bSel = true;
-            if(m_bSel)
-                m_ptFirst = screen2GLPt(m_pt);
+            m_bitFlags.set(0);
+            m_ptFirst = m_ptCur;
 
             if(!m_pSelItem)
             {
@@ -468,46 +466,47 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
     switch (e.m_nBtn)
     {
     case GLFW_MOUSE_BUTTON_LEFT:
-        m_bSel = false;
+        m_bitFlags.reset(0);
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
-        std::cout << "Middle" << std::endl;
-        {
-            Pt pt = screen2GLPt(m_pt);
-            double dXMove = m_ptFirst.x - pt.x;
-            double dYMove = m_ptFirst.y - pt.y;
-            if(fabs(dXMove) < 20 && fabs(dYMove) < 20)
-            {
-                PointItem* ptItem = new PointItem(pt);
+        // std::cout << "Middle" << std::endl;
+        // if(m_bitFlags.test(1))
+        // {
+            m_bitFlags.reset(1);
+        //     Pt pt = screen2GLPt(m_ptCur);
+        //     double dXMove = m_ptFirst.x - pt.x;
+        //     double dYMove = m_ptFirst.y - pt.y;
+        //     if(fabs(dXMove) < 20 && fabs(dYMove) < 20)
+        //     {
+        //         PointItem* ptItem = new PointItem(pt);
 
-                std::default_random_engine e((unsigned int)time(0));
-                std::uniform_real_distribution<double >uA(1,10);
-                std::uniform_real_distribution<double >uB(0,1);
+        //         std::default_random_engine e((unsigned int)time(0));
+        //         std::uniform_real_distribution<double >uA(1,10);
+        //         std::uniform_real_distribution<double >uB(0,1);
 
-                double dSz = uA(e);
-                ptItem->setPtSize((float)dSz);
-                std::cout<<" Pt Size:"<< dSz << std::endl;
-                ptItem->setColor(glm::vec4(uB(e), uB(e), uB(e), 1.0));
+        //         double dSz = uA(e);
+        //         ptItem->setPtSize((float)dSz);
+        //         std::cout<<" Pt Size:"<< dSz << std::endl;
+        //         ptItem->setColor(glm::vec4(uB(e), uB(e), uB(e), 1.0));
 
-                m_vecItems.emplace_back(ptItem);
+        //         m_vecItems.emplace_back(ptItem);
 
-                if(!m_pTree)
-                    m_pTree = new TreeIndex();
-                m_pTree->add(ptItem);
-            }
-            else
-            {
-                m_pCamera->m_v3Position.x += (int)dXMove;
-                m_pCamera->m_v3Position.y += (int)dYMove;
-            }
-
-        }
-        m_bSel = false;
+        //         if(!m_pTree)
+        //             m_pTree = new TreeIndex();
+        //         m_pTree->add(ptItem);
+        //     }
+        //     else
+        //     {
+        //         m_pCamera->m_v3Position.x += (int)dXMove;
+        //         m_pCamera->m_v3Position.y += (int)dYMove;
+        //     }
+        // }
+        // m_bitFlags.reset(0);
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
     {
         m_pSelItem->clear();
-        m_bSel = false;
+        m_bitFlags.reset(0);
     }
     break;
     default:
@@ -518,19 +517,17 @@ void Window::mouseReleaseEvent(MouseReleaseEvent& e)
 
 void Window::mouseMoveEvent(MouseMoveEvent& e)
 {
-    m_pt.x = e.m_dX;
-    m_pt.y = e.m_dY;
-    m_pt.z = 0.0;
+    m_ptCur = screen2GLPt(Pt{e.m_dX, e.m_dY, 0.0});
+    m_ptCurX = Pt{e.m_dX, e.m_dY, 0.0};
     
-    if(m_bSel)
+    if(m_bitFlags.test(0))
     {
-        m_pSelItem->addPt(screen2GLPt(m_pt));
+        m_pSelItem->addPt(m_ptCur);
 
-        Pt pt = screen2GLPt(m_pt);
         if (m_pTree)
         {
            std::cout<<"Select "<<m_vecSelItems.size()<<" Items"<<std::endl;
-            m_vecSelItems = m_pTree->selTest(m_ptFirst, pt);
+            m_vecSelItems = m_pTree->selTest(m_ptFirst, m_ptCur);
             std::default_random_engine e((unsigned int)time(0));
             for (const auto &item : m_vecSelItems)
             {
@@ -542,6 +539,26 @@ void Window::mouseMoveEvent(MouseMoveEvent& e)
                 pLineItem->render();
             }
         }
+    }
+
+    if(m_bitFlags.test(1))
+    {
+        // 相机 导致移动坐标有问题
+        // double dXMove = m_ptCur.x - m_ptPrev.x;
+        // double dYMove = m_ptCur.y - m_ptPrev.y;
+        // std::cout << "\n----Prev X:" << m_ptPrev.x << " Y:" << m_ptPrev.y << std::endl;
+        // std::cout << "Cur X:" << m_ptCur.x << " Y:" << m_ptCur.y << std::endl;
+        // std::cout << "Move X:" << dXMove << " Y:" << dYMove << std::endl;
+        // m_pCamera->m_v3Position.x += (int)dXMove;
+        // m_pCamera->m_v3Position.y += (int)dYMove;
+        // m_ptPrev = m_ptCur;
+        double dXMove = m_ptCurX.x - m_ptFirstX.x;
+        double dYMove = m_ptCurX.y - m_ptFirstX.y;
+        std::cout << "\n----Prev X:" << m_ptPrev.x << " Y:" << m_ptPrev.y << std::endl;
+        std::cout << "Cur X:" << m_ptCur.x << " Y:" << m_ptCur.y << std::endl;
+        std::cout << "Move X:" << dXMove << " Y:" << dYMove << std::endl;
+        m_pCamera->m_v3Position.x += int(dXMove * 0.1);
+        m_pCamera->m_v3Position.y += int(dYMove  * -0.1);
     }
 }
 

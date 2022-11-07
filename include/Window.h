@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include <bitset>
 
 #include "DataDefine.h"
 #include "Event.h"
@@ -77,8 +78,12 @@ private:
 
     std::vector<Item*> m_vecSelItems; // 选中的图元
 
-    Pt      m_pt;
+    Pt      m_ptCur;   // 记录鼠标当前点 GL坐标
+    Pt      m_ptCurX;   // 记录鼠标当前点 屏幕坐标
+    Pt      m_ptPrev;  // 记录鼠标上一次的点
+    Pt      m_ptPrevX;  // 记录鼠标上一次的点
     Pt      m_ptFirst; // 记录鼠标的第一点(GL坐标点)
+    Pt      m_ptFirstX; // 记录鼠标的第一点(GL坐标点)
 
     double m_dDeltaTime = 0.0f;
 
@@ -86,8 +91,7 @@ private:
 
     TreeIndex* m_pTree = nullptr;
 
-    bool m_bSel = false;
-
+    std::bitset<4> m_bitFlags; // 0 选择 1 移动
 
     std::mutex m_mutex;
 };
