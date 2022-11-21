@@ -110,6 +110,14 @@ if(Boost_FOUND)
     target_include_directories(${APP_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
     target_link_libraries(${APP_NAME} ${Boost_LIBRARY_DIRS})
 endif()
+
+################# ImGui #####################################
+find_package(imgui CONFIG REQUIRED)
+if(imgui_FOUND)
+    message(STATUS  " -----imgui_FOUND")
+    target_link_libraries(${APP_NAME}  imgui::imgui)
+endif()
+
 ################# OUPUT ######################################
 if(WIN32)
     set_target_properties(${APP_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/")
