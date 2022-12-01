@@ -62,6 +62,8 @@ private:
 
     Pt screen2GLPt(Pt& ptS); // 屏幕坐标转OpenGL坐标
 
+    void initImGui();
+
 private:
     double m_dWndW = 1200;
     double m_dWndH = 800;
