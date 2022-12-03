@@ -74,6 +74,11 @@ add_library(STB_IMAGE ${CMAKE_SOURCE_DIR}/3rd/stb_image.cpp)
 set(LIBS ${LIBS} STB_IMAGE)
 target_link_libraries(${APP_NAME}  STB_IMAGE)
 
+#################### imgui #################################
+add_subdirectory(./3rd/imgui)
+set(LIBS ${LIBS} imgui)
+target_link_libraries(${APP_NAME}  imgui)
+
 ################### GLFW3 #################################
 find_package(glfw3 CONFIG REQUIRED)
 # find_package(glfw3 REQUIRED)
