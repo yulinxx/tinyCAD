@@ -4,6 +4,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_glfw.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -29,6 +32,7 @@
 
 #include "log.h"
 #include "TreeIndex.h"
+
 
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=nullptr; } }
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=nullptr; } }
@@ -101,7 +105,8 @@ bool Window::initWnd(int w, int h, std::string& strName)
         std::cout << "Failed to initialize GLAD" << std::endl;
         return false;
     }
-    
+
+
     glfwSetWindowUserPointer(m_pWnd, this);  // 存储window类
 
     // callback functrions
@@ -180,8 +185,12 @@ bool Window::initWnd(int w, int h, std::string& strName)
             }
         });
     }
+
+
     return true;
 }
+
+
 
 // Loop Render
 bool Window::run()

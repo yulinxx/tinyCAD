@@ -75,9 +75,9 @@ set(LIBS ${LIBS} STB_IMAGE)
 target_link_libraries(${APP_NAME}  STB_IMAGE)
 
 #################### imgui #################################
-add_subdirectory(./3rd/imgui)
-set(LIBS ${LIBS} imgui)
-target_link_libraries(${APP_NAME}  imgui)
+# add_subdirectory(./3rd/imgui)
+# set(LIBS ${LIBS} imgui)
+# target_link_libraries(${APP_NAME}  imgui)
 
 ################### GLFW3 #################################
 find_package(glfw3 CONFIG REQUIRED)
@@ -117,11 +117,11 @@ if(Boost_FOUND)
 endif()
 
 ################# ImGui #####################################
-find_package(imgui CONFIG REQUIRED)
-if(imgui_FOUND)
-    message(STATUS  " -----imgui_FOUND")
-    target_link_libraries(${APP_NAME}  imgui::imgui)
-endif()
+# find_package(imgui CONFIG REQUIRED)
+# if(imgui_FOUND)
+#     message(STATUS  " -----imgui_FOUND")
+#     target_link_libraries(${APP_NAME}  imgui::imgui)
+# endif()
 
 ################# OUPUT ######################################
 if(WIN32)
@@ -166,6 +166,11 @@ FILL_COPY()
 
 include_directories(${CMAKE_SOURCE_DIR}/includes)
 target_include_directories(${APP_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/3rd)
+
+# target_link_directories(${APP_NAME} PRIVATE D:/xx/Downloads/imgui-glfw-glad-glm-master/build/imgui)
+# include_directories(D:/xx/Downloads/imgui-glfw-glad-glm-master/imgui/imgui)
+# target_link_libraries(${APP_NAME} D:/xx/Downloads/imgui-glfw-glad-glm-master/imgui/imgui)
+# target_link_libraries(${APP_NAME} imgui)
 
 ################################################################
 # add_subdirectory(dashedLine)
