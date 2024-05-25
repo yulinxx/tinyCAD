@@ -60,7 +60,7 @@ private:
     void mouseReleaseEvent(MouseReleaseEvent& e);
     void mouseMoveEvent(MouseMoveEvent& e);
 
-    Pt screen2GLPt(Pt& ptS); // 屏幕坐标转OpenGL坐标
+    Pt screen2GLPt(const Pt& ptS); // 屏幕坐标转OpenGL坐标
 
     void initImGui();
 

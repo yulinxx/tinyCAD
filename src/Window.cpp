@@ -572,7 +572,7 @@ void Window::mouseMoveEvent(MouseMoveEvent& e)
 }
 
 
-Pt Window::screen2GLPt(Pt& ptS)
+Pt Window::screen2GLPt(const Pt& ptS)
 {
     double dRadio = m_pCamera->m_v3Position.z / m_pCamera->m_v3PositionOri.z;
     double dV = m_pCamera->m_v3Position.x - m_pCamera->m_v3PositionOri.x;
