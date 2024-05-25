@@ -52,4 +52,4 @@ public:
     std::vector<DPolygon> m_vecPolygons;
 };
 
-#endif _TREE_INDEX_H_
+#endif //_TREE_INDEX_H_
